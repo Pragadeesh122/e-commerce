@@ -6,30 +6,81 @@ import Divider from "@/app/components/Divider";
 import github from "@/public/Github.png";
 import google from "@/public/Google.png";
 import Image from "next/image";
-import {githubSignInAction, googleSignInAction} from "@/app/lib/actions";
+import {
+  githubSignInAction,
+  googleSignInAction,
+  signInUser,
+} from "@/app/lib/actions";
+import Link from "next/link";
+import {useRouter} from "next/navigation";
+import {useState} from "react";
 
 export default function Login() {
+  const router = useRouter();
+  const [error, setError] = useState<string | undefined>();
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    try {
+      event.preventDefault();
+      const form = new FormData(event.currentTarget);
+      const response = await signInUser(form);
+      if (response.error) {
+        setError(response.error);
+      } else {
+        router.push("/");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   return (
-    <form className=' flex flex-col gap-6 px-6 py-8 border-gray-400 border-2 rounded-md'>
+    <div className=' flex flex-col gap-6 px-6 py-8 border-gray-400 border-2 rounded-md'>
       <h1 className='text-center text-xl font-semibold'>Login</h1>
-      <div className='flex flex-col gap-2 '>
-        <Input className='w-72' id='email' type='email' placeholder='Email' />
-      </div>
-      <div className='flex flex-col gap-2 '>
-        <Input
-          className='w-72'
-          id='password'
-          type='password'
-          placeholder='Password'
-        />
-      </div>
-      <div>
-        <Button className='w-full'>Login</Button>
-      </div>
+      <form onSubmit={handleSubmit} className='flex flex-col gap-6'>
+        <div className='flex flex-col gap-2 '>
+          <Input
+            className='w-72'
+            id='email'
+            name='email'
+            type='email'
+            placeholder='Email'
+          />
+        </div>
+        <div className='flex flex-col gap-2 '>
+          <Input
+            className='w-72'
+            id='password'
+            name='password'
+            type='password'
+            placeholder='Password'
+          />
+        </div>
+        {error && (
+          <div className='text-sm ml-2'>
+            <span className='text-red-500'>{error}</span>
+          </div>
+        )}
+        <div className='mt-[-10px] ml-2'>
+          <span className='text-sm font-medium'>
+            Don&apos;t you have an account?{" "}
+            <Link
+              className='text-gray-800 font-semibold underline ml-1'
+              href='/register'>
+              Register
+            </Link>
+          </span>
+        </div>
+        <div>
+          <Button type='submit' className='w-full'>
+            Login
+          </Button>
+        </div>
+      </form>
       <div>
         <Divider />
       </div>
-      <div>
+      <form>
         <Button formAction={googleSignInAction} className='w-full'>
           Sign in with Google{" "}
           <Image
@@ -39,8 +90,8 @@ export default function Login() {
             height={24}
             alt='google_icon'></Image>
         </Button>
-      </div>
-      <div>
+      </form>
+      <form>
         <Button formAction={githubSignInAction} className='w-full'>
           Sign in with Github{" "}
           <Image
@@ -50,7 +101,7 @@ export default function Login() {
             height={24}
             alt='github_icon'></Image>
         </Button>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 }
