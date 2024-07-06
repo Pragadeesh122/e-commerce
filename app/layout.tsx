@@ -18,7 +18,7 @@ export default async function RootLayout({
   return (
     <html lang='en'>
       <body className={openSans.className}>
-        <main className='min-h-screen scroll-smooth'>{children}</main>
+        <main className='min-h-screen scroll-smooth '>{children}</main>
       </body>
     </html>
   );

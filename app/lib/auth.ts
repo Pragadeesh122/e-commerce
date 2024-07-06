@@ -1,9 +1,10 @@
-import NextAuth from "next-auth";
+import NextAuth, {Session} from "next-auth";
 import Google from "next-auth/providers/google";
 import Github from "next-auth/providers/github";
 import credentials from "next-auth/providers/credentials";
 import prisma from "./db";
 import bycrptjs from "bcryptjs";
+import {Prisma} from "@prisma/client";
 
 const authConfig = {
   providers: [
@@ -32,7 +33,7 @@ const authConfig = {
           if (user) {
             const isMatch = await bycrptjs.compare(
               credentials.password as string,
-              user.password
+              user.password!
             );
 
             if (isMatch) {
@@ -50,6 +51,33 @@ const authConfig = {
   callbacks: {
     authorized({auth, request}: {auth: any; request: any}) {
       return !!auth?.user;
+    },
+    async signIn({user}: {user: any}) {
+      try {
+        const existingGuest = await prisma.user.findUnique({
+          where: {
+            email: user.email,
+          },
+        });
+
+        let authUser: Prisma.UserCreateInput;
+
+        if (!existingGuest) {
+          authUser = {
+            email: user.email as string,
+            name: user.name as string,
+            image: user.image as string,
+          };
+          await prisma.user.create({
+            data: authUser,
+          });
+        }
+
+        return true;
+      } catch (error: any) {
+        console.error("Error in signIn callback:", error);
+        return false;
+      }
     },
   },
   pages: {

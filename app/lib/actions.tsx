@@ -2,10 +2,12 @@
 
 import prisma from "@/app/lib/db";
 import bycrptjs from "bcryptjs";
+import {Prisma} from "@prisma/client";
 
-import {signIn, signOut} from "@/app/lib/auth";
+import {auth, signIn, signOut} from "@/app/lib/auth";
 import {validateFormData} from "@/app/data/formDataValidation";
 import {uploadImage} from "@/app/lib/supabase/helpers";
+import {revalidatePath} from "next/cache";
 
 export async function googleSignInAction() {
   await signIn("google", {redirectTo: "/"});
@@ -25,9 +27,8 @@ export async function createUser(formData: FormData) {
   const password = formData.get("password") as string;
 
   const hashedPassword = bycrptjs.hashSync(password, 10);
-  console.log("name:", name, "email:", email, "password:", hashedPassword);
 
-  const validation = validateFormData(name, email, password);
+  const validation = validateFormData(password, name, email);
 
   if (validation !== "passed") {
     return {error: validation};
@@ -68,7 +69,7 @@ export async function addProduct(formData: FormData) {
   const sizes = JSON.parse(formData.get("sizes") as string);
   const price = formData.get("price");
   try {
-    const image = await uploadImage(imageFile);
+    const image = await uploadImage(imageFile, "product_images");
     if (!image) {
       return {error: "Error uploading image"};
     }
@@ -88,7 +89,67 @@ export async function addProduct(formData: FormData) {
     }
     return {success: true};
   } catch (error: any) {
-    console.error("Error creating product:", error); // Log the actual error message
+    console.error("Error creating product:", error);
     return {error: "Error creating product", details: error.message};
+  }
+}
+
+export async function updateProfile(formData: FormData) {
+  const name = formData.get("name") as string;
+  const password = formData.get("password") as string;
+  const passwordCheck = formData.get("passwordCheck") as string;
+  const image = formData.get("image") as File;
+
+  if (password) {
+    if (password !== passwordCheck) {
+      return {error: "Passwords do not match"};
+    }
+  }
+
+  const validation = validateFormData(password, name);
+  if (validation !== "passed") {
+    return {error: validation};
+  }
+
+  let user: Prisma.UserUpdateInput = {
+    name: name as string,
+  };
+  let userImage: string = "";
+
+  if (!(image?.name === "undefined")) {
+    const imageUrl = await uploadImage(image, "profile_images");
+    if (!imageUrl) {
+      return {error: "Error uploading image"};
+    }
+    user = {
+      ...user,
+      image: imageUrl as string,
+    };
+  }
+
+  if (password) {
+    const hashedPassword = bycrptjs.hashSync(password, 10);
+    user = {
+      ...user,
+      password: hashedPassword as string,
+    };
+  }
+
+  try {
+    const session = await auth();
+    if (!session) {
+      return {error: "You are Unauthorized to update this profile"};
+    }
+    const userEmail = session?.user?.email as string;
+    await prisma.user.update({
+      where: {
+        email: userEmail,
+      },
+      data: user,
+    });
+    revalidatePath("/profile");
+    return {success: "Profile updated successfully"};
+  } catch (err: any) {
+    return {error: "Error updating profile", details: err.message};
   }
 }

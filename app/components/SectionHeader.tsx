@@ -10,7 +10,7 @@ export default function SectionHeader({
   return (
     <div className='space-y-3 text-center mb-8'>
       {heading && (
-        <div className='inline-block border-1 shadow-lg py-2 rounded-full bg-background px-4 text-sm mb-4 font-semibold'>
+        <div className='inline-block border-1 shadow-lg py-2 rounded-full bg-background px-6 text-sm mb-4 font-semibold'>
           {heading}
         </div>
       )}
