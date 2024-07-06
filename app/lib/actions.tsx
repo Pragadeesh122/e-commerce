@@ -80,7 +80,8 @@ export async function addProduct(formData: FormData) {
         description: description as string,
         size: sizes as string[],
         price: parseFloat(price as string),
-        image,
+        displayImage: image,
+        wear: "casual",
       },
     });
 
