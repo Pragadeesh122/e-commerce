@@ -9,11 +9,7 @@ export default async function Page() {
     where: {
       email: session?.user?.email!,
     },
-    select: {
-      name: true,
-      email: true,
-      image: true,
-    },
+    select: {name: true, email: true, image: true, id: true, cartItems: true},
   });
 
   return (
