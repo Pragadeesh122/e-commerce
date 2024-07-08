@@ -73,9 +73,6 @@ export default function FeatureSection({
                         {getBadgeLabel(image)}
                       </Badge>
                     </div>
-                    <form className='mt-2'>
-                      <Button className='rounded-full px-6'>Add to Cart</Button>
-                    </form>
                   </div>
                 </CardContent>
               </Card>

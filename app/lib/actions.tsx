@@ -154,3 +154,83 @@ export async function updateProfile(formData: FormData) {
     return {error: "Error updating profile", details: err.message};
   }
 }
+
+export async function addToCart(formData: FormData) {
+  const productId = formData.get("productId") as string;
+  const userId = formData.get("userId") as string;
+  const quantity = parseInt(formData.get("quantity") as string);
+  const size = formData.get("size") as string;
+
+  if (!size) {
+    return {error: "Please select a size"};
+  }
+
+  try {
+    const session = await auth();
+    const alreadyInCart = await prisma.user.findFirst({
+      where: {
+        email: session?.user?.email!,
+      },
+      include: {
+        cartItems: true,
+      },
+    });
+
+    const cartItem = alreadyInCart?.cartItems?.filter(
+      (item) => item.size === size && item.productId === productId
+    );
+
+    if (cartItem?.length) {
+      cartItem.forEach(async (item) => {
+        await prisma.cartItem.update({
+          where: {
+            id: item.id,
+          },
+          data: {
+            quantity: item.quantity + quantity,
+          },
+        });
+      });
+    }
+
+    if (!cartItem?.length) {
+      console.log("Creating new cart item");
+      await prisma.cartItem.create({
+        data: {
+          product: {
+            connect: {
+              id: productId,
+            },
+          },
+          user: {
+            connect: {
+              id: userId,
+            },
+          },
+          quantity,
+          size,
+        },
+      });
+
+      revalidatePath("/products/[productId]", "page");
+    }
+  } catch (error: any) {
+    console.error("Error adding to cart:", error);
+    return {error: "Error adding to cart", details: error.message};
+  }
+}
+
+export async function removeFromCart(formData: FormData) {
+  const cartItemId = formData.get("cartId") as string;
+  try {
+    await prisma.cartItem.delete({
+      where: {
+        id: cartItemId,
+      },
+    });
+    revalidatePath("/cart");
+  } catch (error: any) {
+    console.error("Error removing from cart:", error);
+    return {error: "Error removing from cart", details: error.message};
+  }
+}

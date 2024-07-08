@@ -10,10 +10,8 @@ export default async function Page() {
     select: {name: true, email: true, image: true},
   });
 
-  const formalWears = await prisma.product.findMany({
-    where: {
-      wear: "Formal wear",
-    },
+  const eventWears = await prisma.product.findMany({
+    where: {wear: "Event wear"},
   });
 
   return (
@@ -22,10 +20,10 @@ export default async function Page() {
       <main className='flex-1 px-14 bg-muted'>
         <section className='w-full py-10 md:pt-20'>
           <FeatureSection
-            images={formalWears}
-            heading='Elevate Your Formal Attire'
-            subHeading='Discover Timeless Elegance'
-            description='Step into sophistication with our exclusive collection of formal wear. From classic suits to elegant evening gowns, find the perfect outfit for every formal occasion.'
+            images={eventWears}
+            heading='Dazzle at Every Event'
+            subHeading='Stunning Event Wear'
+            description="Make a statement at your next event with our collection of event wear. Whether it's a wedding, gala, or party, our elegant and stylish outfits will ensure you shine."
           />
         </section>
       </main>

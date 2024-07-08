@@ -18,6 +18,8 @@ export default async function Home() {
       name: true,
       email: true,
       image: true,
+      id: true,
+      cartItems: true,
     },
   });
 

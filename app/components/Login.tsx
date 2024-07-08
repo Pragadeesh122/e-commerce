@@ -14,14 +14,17 @@ import {
 import Link from "next/link";
 import {useRouter} from "next/navigation";
 import {useState} from "react";
+import SubmitButton from "./SubmitButton";
 
 export default function Login() {
   const router = useRouter();
   const [error, setError] = useState<string | undefined>();
+  const [pending, setPending] = useState<boolean>(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     try {
       event.preventDefault();
+      setPending(true);
       const form = new FormData(event.currentTarget);
       const response = await signInUser(form);
       if (response.error) {
@@ -31,6 +34,8 @@ export default function Login() {
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setPending(false);
     }
   }
 
@@ -71,10 +76,13 @@ export default function Login() {
             </Link>
           </span>
         </div>
-        <div>
-          <Button type='submit' className='w-full'>
-            Login
-          </Button>
+        <div className='flex w-full'>
+          <SubmitButton
+            pending={pending}
+            label='Login'
+            pendingLabel='Loggin in....'
+            className='w-full rounded-md'
+          />
         </div>
       </form>
       <div>

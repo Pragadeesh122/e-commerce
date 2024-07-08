@@ -32,9 +32,11 @@ export default function Header({
   render?: boolean | null;
   userAccount?: boolean | null;
   user?: {
+    id?: string;
     name: string;
     email: string;
     image: string | null;
+    cartItems: {id: string; quantity: number; productId: string}[];
   } | null;
 }) {
   return (
@@ -139,15 +141,14 @@ export default function Header({
                       </NavigationMenuLink>
                       <NavigationMenuLink asChild>
                         <Link
-                          href='/collections/athleisure'
+                          href='/collections/eventWear'
                           className='group grid h-auto w-full items-center justify-start gap-2 rounded-md bg-background p-4 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50'
                           prefetch={false}>
                           <div className='text-sm font-medium leading-none group-hover:underline'>
-                            Athleisure
+                            Event Wear
                           </div>
                           <div className='line-clamp-2 text-sm leading-snug text-muted-foreground'>
-                            Stylish and comfortable activewear for everyday
-                            wear.
+                            Stylish and Elegant outfits for special events.
                           </div>
                         </Link>
                       </NavigationMenuLink>
@@ -197,12 +198,15 @@ export default function Header({
         )}
         <div className='flex gap-8 items-center justify-content'>
           <div className='relative'>
-            <ShoppingCartIcon className='h-10 w-10' />
-            <div className='absolute h-5 w-5 border-2 border-slate-900  rounded-full top-[-7px] left-7 '>
-              <span className='flex text-xs items-start justify-center top-20'>
-                1
-              </span>
-            </div>
+            <Link href='/cart'>
+              <ShoppingCartIcon className='h-10 w-10' />
+
+              <div className='absolute h-5 w-5 border-2 border-slate-900  rounded-full top-[-7px] left-7 '>
+                <span className='flex text-xs items-start justify-center top-20'>
+                  {user?.cartItems?.length}
+                </span>
+              </div>
+            </Link>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
