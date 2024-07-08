@@ -7,7 +7,7 @@ export default async function Page() {
   const session = await auth();
   const user = await prisma.user.findUnique({
     where: {email: session?.user?.email!},
-    select: {name: true, email: true, image: true},
+    select: {name: true, email: true, image: true, id: true, cartItems: true},
   });
   const womenWears = await prisma.product.findMany({
     where: {
