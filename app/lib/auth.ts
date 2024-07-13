@@ -1,83 +1,80 @@
-import NextAuth from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
-import GithubProvider from "next-auth/providers/github";
-import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
+import NextAuth, {Session} from "next-auth";
+import Google from "next-auth/providers/google";
+import Github from "next-auth/providers/github";
+import credentials from "next-auth/providers/credentials";
 import prisma from "./db";
+import bycrptjs from "bcryptjs";
 import {Prisma} from "@prisma/client";
 
 const authConfig = {
   providers: [
-    GoogleProvider({
-      clientId: process.env.AUTH_GOOGLE_ID!,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+    Google({
+      clientId: process.env.AUTH_GOOGLE_ID,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET,
     }),
-    GithubProvider({
-      clientId: process.env.AUTH_GITHUB_ID!,
-      clientSecret: process.env.AUTH_GITHUB_SECRET!,
+    Github({
+      clientId: process.env.AUTH_GITHUB_ID,
+      clientSecret: process.env.AUTH_GITHUB_SECRET,
     }),
-    CredentialsProvider({
-      name: "credentials",
-      credentials: {
-        email: {label: "Email", type: "text"},
-        password: {label: "Password", type: "password"},
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+    credentials({
+      async authorize(credentials, request) {
+        if (
+          (credentials?.email as string) === null ||
+          (credentials?.password as string) === null
+        ) {
           return null;
         }
+        try {
+          const user = await prisma.user.findUnique({
+            where: {
+              email: credentials?.email as string,
+            },
+          });
+          if (user) {
+            const isMatch = await bycrptjs.compare(
+              credentials.password as string,
+              user.password!
+            );
 
-        const user = await prisma.user.findUnique({
-          where: {email: credentials.email},
-        });
-
-        if (
-          user &&
-          (await bcrypt.compare(credentials.password, user.password!))
-        ) {
-          return user;
-        } else {
-          return null;
+            if (isMatch) {
+              return user as any;
+            } else {
+              throw new Error("Invalid Credentials");
+            }
+          }
+        } catch (error: any) {
+          return error.message;
         }
       },
     }),
   ],
-  session: {
-    strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
   callbacks: {
-    async jwt({token, user}) {
-      if (user) {
-        token.id = user.id;
-        token.email = user.email;
-      }
-      return token;
+    authorized({auth, request}: {auth: any; request: any}) {
+      return !!auth?.user;
     },
-    async session({session, token}) {
-      if (token) {
-        session.id = token.id;
-        session.user.email = token.email;
-      }
-      return session;
-    },
-    async signIn({user}) {
+    async signIn({user}: {user: any}) {
       try {
-        const existingUser = await prisma.user.findUnique({
-          where: {email: user.email},
+        const existingGuest = await prisma.user.findUnique({
+          where: {
+            email: user.email,
+          },
         });
 
-        if (!existingUser) {
+        let authUser: Prisma.UserCreateInput;
+
+        if (!existingGuest) {
+          authUser = {
+            email: user.email as string,
+            name: user.name as string,
+            image: user.image as string,
+          };
           await prisma.user.create({
-            data: {
-              email: user.email!,
-              name: user.name!,
-              image: user.image!,
-            },
+            data: authUser,
           });
         }
+
         return true;
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error in signIn callback:", error);
         return false;
       }
@@ -93,4 +90,7 @@ export const {
   handlers: {GET, POST},
   signIn,
   signOut,
-} = NextAuth(authConfig);
+} = NextAuth({
+  session: {strategy: "jwt"},
+  ...authConfig,
+});
