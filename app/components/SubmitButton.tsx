@@ -14,7 +14,6 @@ export default function SubmitButton({
   pending: boolean;
   className?: string;
 }) {
-  console.log(pending);
   return (
     <Button
       type='submit'

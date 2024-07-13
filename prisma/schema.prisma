@@ -86,7 +86,7 @@ model Order {
 model OrderItem {
   id        String   @id @default(cuid())
   productId String
-  orderId   String
+  orderId   String  @default(cuid())
   quantity  Int
   price     Float
 

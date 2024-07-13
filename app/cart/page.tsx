@@ -3,8 +3,10 @@ import {auth} from "../lib/auth";
 import prisma from "../lib/db";
 import {Button} from "../components/ui/button";
 import Header from "../components/Header";
-import {removeFromCart} from "../lib/actions";
+import {removeFromCart, updateCartItem} from "../lib/actions";
 import CartRemoveButton from "../components/CartRemoveButton";
+import {SizeQuantityUpdate} from "../components/SizeQuantityUpdate";
+import Link from "next/link";
 
 export default async function Page() {
   const session = await auth();
@@ -47,51 +49,20 @@ export default async function Page() {
                   Price: ${cartItem.product.price}
                 </p>
                 <div className='flex items-center mt-2 space-x-4'>
-                  <div>
-                    <label
-                      htmlFor={`quantity${cartItem.id}`}
-                      className='block text-sm font-medium text-gray-700'>
-                      Quantity
-                    </label>
-                    <input
-                      type='number'
-                      id={`quantity${cartItem.id}`}
-                      name={`quantity${cartItem.id}`}
-                      defaultValue={cartItem.quantity}
-                      min={1}
-                      max={cartItem.product.quantity}
-                      className='mt-1 block w-16 p-2 border border-gray-300 rounded-md'
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor={`size${cartItem.id}`}
-                      className='block text-sm font-medium text-gray-700'>
-                      Size
-                    </label>
-                    <select
-                      id={`size${cartItem.id}`}
-                      name={`size${cartItem.id}`}
-                      className='mt-1 block w-24 p-2 border border-gray-300 rounded-md'
-                      defaultValue={cartItem.size}>
-                      {cartItem.product.size.map((size) => (
-                        <option key={size} value={size}>
-                          {size}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  <SizeQuantityUpdate cartItem={cartItem} />
                 </div>
               </div>
               <CartRemoveButton cartId={cartItem.id} />
             </div>
           ))}
         </div>
-        <form className='mt-6'>
-          <Button type='submit' className='w-full py-3 text-lg font-semibold'>
-            Checkout
-          </Button>
-        </form>
+        <Link href='/checkout'>
+          <div className='mt-6'>
+            <Button type='submit' className='w-full py-3 text-lg font-semibold'>
+              Checkout
+            </Button>
+          </div>
+        </Link>
       </div>
     </div>
   );

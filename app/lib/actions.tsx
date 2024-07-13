@@ -8,6 +8,7 @@ import {auth, signIn, signOut} from "@/app/lib/auth";
 import {validateFormData} from "@/app/data/formDataValidation";
 import {uploadImage} from "@/app/lib/supabase/helpers";
 import {revalidatePath} from "next/cache";
+import {redirect} from "next/navigation";
 
 export async function googleSignInAction() {
   await signIn("google", {redirectTo: "/"});
@@ -232,5 +233,87 @@ export async function removeFromCart(formData: FormData) {
   } catch (error: any) {
     console.error("Error removing from cart:", error);
     return {error: "Error removing from cart", details: error.message};
+  }
+}
+
+export async function updateCartItem(formData: FormData) {
+  const cartItemId = formData.get("cartId") as string;
+  const size = formData.get("size") as string;
+  const quantity = parseInt(formData.get("quantity") as string) + 1;
+
+  try {
+    if (size) {
+      console.log("Updating size");
+      await prisma.cartItem.update({
+        where: {
+          id: cartItemId,
+        },
+        data: {
+          size,
+        },
+      });
+    }
+    if (quantity) {
+      console.log("Updating quantity");
+      await prisma.cartItem.update({
+        where: {
+          id: cartItemId,
+        },
+        data: {
+          quantity,
+        },
+      });
+    }
+  } catch (error: any) {
+    console.error("Error updating cart item:", error);
+    return {error: "Error updating cart item", details: error.message};
+  }
+}
+
+export async function createOrder() {
+  try {
+    const session = await auth();
+    if (!session) {
+      throw new Error("You are not authorized to perform this action");
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {email: session?.user?.email!},
+      include: {cartItems: {include: {product: true}}},
+    });
+
+    if (!user || !user.cartItems.length) {
+      throw new Error("No items in the cart");
+    }
+
+    const total = user.cartItems.reduce(
+      (acc, item) => acc + item.quantity * item.product.price,
+      0
+    );
+
+    // Step 1: Create the Order
+    const newOrder = await prisma.order.create({
+      data: {
+        userId: user.id,
+        total,
+      },
+    });
+
+    // Step 2: Create the OrderItems
+    const orderItems = user.cartItems.map((cartItem) => ({
+      orderId: newOrder.id,
+      productId: cartItem.productId,
+      quantity: cartItem.quantity,
+      price: cartItem.product.price,
+    }));
+
+    await prisma.orderItem.createMany({data: orderItems});
+
+    // Clear the cart
+    await prisma.cartItem.deleteMany({where: {userId: user.id}});
+    return {success: true};
+  } catch (error: any) {
+    console.error("Error creating order:", error);
+    return {success: false, error: error.message};
   }
 }

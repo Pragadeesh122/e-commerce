@@ -20,7 +20,7 @@ export default function CartRemoveButton({cartId}: {cartId: string}) {
 
   return (
     <form onSubmit={handleSubmit} className='self-end'>
-      <input hidden value={cartId} name='cartId' />
+      <input hidden defaultValue={cartId} name='cartId' />
       <Button
         disabled={pending}
         className='disabled:bg-slate-500'
