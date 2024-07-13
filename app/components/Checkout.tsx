@@ -46,7 +46,7 @@ const Checkout = ({amount}: {amount: number}) => {
       confirmParams: {
         return_url: `${
           process.env.NODE_ENV === "production"
-            ? "https://elegancehub.vercel.app/"
+            ? "https://elegancehub.vercel.app/payment_success"
             : "http://www.localhost:3000/payment_success"
         }`,
       },
