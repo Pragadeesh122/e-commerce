@@ -44,7 +44,7 @@ export default async function Page() {
       </header>
       <main className='min-h-screen flex flex-col pt-32 pb-6 gap-4 items-center justify-center bg-muted '>
         <h1 className='text-center text-3xl mb-4 font-bold'>Your Orders</h1>
-        <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
+        <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 items-center justify-center'>
           {orderItems?.map((order: any) => (
             <div
               key={order.id}

@@ -3,12 +3,19 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 export async function POST(request: NextRequest) {
   try {
-    const {amount} = await request.json();
+    const {amount, email, name, address} = await request.json();
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amount,
       currency: "usd",
       automatic_payment_methods: {enabled: true},
+      receipt_email: email,
+      shipping: {
+        name,
+        address: {
+          line1: address,
+        },
+      },
     });
 
     return NextResponse.json({clientSecret: paymentIntent.client_secret});
