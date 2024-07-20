@@ -11,10 +11,10 @@ const stripePromise = loadStripe(
 
 export default function CheckOutForm({cartItems}: {cartItems: any}) {
   const totalAmount = cartItems.reduce(
-    (acc: number, cur: any) => (acc += cur?.product?.price),
+    (acc: number, cur: any) => (acc += cur?.Product?.price),
     0
   );
-  console.log(cartItems);
+
   return (
     <div className='flex flex-col gap-12 border-2 rounded-md'>
       <h1 className='font-bold text-2xl text-center mt-4'>Checkout Form</h1>
@@ -25,14 +25,14 @@ export default function CheckOutForm({cartItems}: {cartItems: any}) {
             <div
               className='flex flex-col gap-4 font-semibold border-2 rounded-md mb-4 px-4 py-2'
               key={item.id}>
-              <p>{item.product.productName}</p>
+              <p>{item.Product.productName}</p>
               <div className='flex justify-between items-end'>
                 <Image
-                  src={item.product.displayImage}
+                  src={item.Product.displayImage}
                   alt='order image'
                   width={50}
                   height={50}></Image>
-                <p>${item.quantity * item.product.price}</p>
+                <p>${item.quantity * item.Product.price}</p>
               </div>
             </div>
           ))}

@@ -154,7 +154,7 @@ export async function getFormalWear() {
     .eq("wear", "Formal wear");
 
   if (error) {
-    console.error("Error fetching mens wear:", error.message);
+    console.error("Error fetching Formal wear:", error.message);
     return [];
   }
 
@@ -168,7 +168,7 @@ export async function getTrendingProducts() {
     .eq("isTrending", true);
 
   if (error) {
-    console.error("Error fetching mens wear:", error.message);
+    console.error("Error fetching Trending wear:", error.message);
     return [];
   }
 
@@ -179,12 +179,10 @@ export async function getRecommendedProducts() {
   const {data, error} = await supabase
     .from("Product")
     .select("*")
-    .eq("isPopular", true)
-    .eq("isTopRated", true)
-    .eq("isOnSale", true);
+    .or("isTopRated.eq.true,isOnSale.eq.true,isPopular.eq.true");
 
   if (error) {
-    console.error("Error fetching mens wear:", error.message);
+    console.error("Error fetching recommended wears:", error.message);
     return [];
   }
 

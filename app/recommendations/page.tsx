@@ -8,6 +8,7 @@ export default async function Page() {
   const user = await getUserByEmail(session?.user?.email!);
 
   const recommendations = await getRecommendedProducts();
+  console.log(recommendations);
 
   return (
     <div className='flex flex-col'>

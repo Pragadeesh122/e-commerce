@@ -12,11 +12,12 @@ import {
   signInUser,
 } from "@/app/lib/actions";
 import Link from "next/link";
-import {useRouter} from "next/navigation";
-import {useState} from "react";
+import {useRouter, usePathname} from "next/navigation";
+import {useEffect, useState} from "react";
 import SubmitButton from "./SubmitButton";
 
 export default function Login() {
+  const pathName = usePathname();
   const router = useRouter();
   const [error, setError] = useState<string | undefined>();
   const [pending, setPending] = useState<boolean>(false);
@@ -34,11 +35,13 @@ export default function Login() {
       }
     } catch (error) {
       console.log(error);
-    } finally {
       setPending(false);
     }
   }
 
+  useEffect(() => {
+    if (pending && pathName === "/") setPending(false);
+  }, [pending, pathName]);
   return (
     <div className=' flex flex-col gap-6 px-6 py-8 border-gray-400 border-2 rounded-md'>
       <h1 className='text-center text-xl font-semibold'>Login</h1>
