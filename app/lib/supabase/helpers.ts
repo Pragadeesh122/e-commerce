@@ -76,3 +76,45 @@ export async function getUserByEmailWithCartItemsAndProducts(email: string) {
 
   return user;
 }
+
+export async function getMensWear() {
+  const {data, error} = await supabase
+    .from("Product")
+    .select("*")
+    .eq("isMens", true);
+
+  if (error) {
+    console.error("Error fetching mens wear:", error.message);
+    return [];
+  }
+
+  return data;
+}
+
+export async function getWomensWear() {
+  const {data, error} = await supabase
+    .from("Product")
+    .select("*")
+    .eq("isWomen", true);
+
+  if (error) {
+    console.error("Error fetching mens wear:", error.message);
+    return [];
+  }
+
+  return data;
+}
+
+export async function getKidsWear() {
+  const {data, error} = await supabase
+    .from("Product")
+    .select("*")
+    .eq("isKids", true);
+
+  if (error) {
+    console.error("Error fetching mens wear:", error.message);
+    return [];
+  }
+
+  return data;
+}

@@ -2,17 +2,13 @@ import FeatureSection from "@/app/components/FeatureSection";
 import Header from "@/app/components/Header";
 import {auth} from "@/app/lib/auth";
 import prisma from "@/app/lib/db";
-import {getUserByEmail} from "@/app/lib/supabase/helpers";
+import {getMensWear, getUserByEmail} from "@/app/lib/supabase/helpers";
 
 export default async function Page() {
   const session = await auth();
   const user = await getUserByEmail(session?.user?.email!);
 
-  const mensWear = await prisma.product.findMany({
-    where: {
-      isMens: true,
-    },
-  });
+  const mensWear = await getMensWear();
 
   return (
     <div className='flex flex-col'>
