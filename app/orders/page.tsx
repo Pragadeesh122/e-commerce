@@ -3,6 +3,7 @@ import prisma from "../lib/db";
 import {Badge} from "@/app/components/ui/badge";
 import Image from "next/image";
 import Header from "../components/Header";
+import {getUserByEmail} from "../lib/supabase/helpers";
 
 export default async function Page() {
   const session = await auth();
@@ -23,12 +24,7 @@ export default async function Page() {
     },
   });
 
-  const headerUser = await prisma.user.findUnique({
-    where: {
-      email: session?.user?.email!,
-    },
-    select: {email: true, name: true, id: true, cartItems: true, image: true},
-  });
+  const headerUser = await getUserByEmail(session?.user?.email!);
 
   const orderItems = user?.orders.flatMap((order: any) =>
     order.orderItems.map((item: any) => ({

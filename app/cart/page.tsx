@@ -7,23 +7,15 @@ import {removeFromCart, updateCartItem} from "../lib/actions";
 import CartRemoveButton from "../components/CartRemoveButton";
 import {SizeQuantityUpdate} from "../components/SizeQuantityUpdate";
 import Link from "next/link";
+import {getUserByEmailWithCartItemsAndProducts} from "../lib/supabase/helpers";
 
 export default async function Page() {
   const session = await auth();
-  const user = await prisma.user.findUnique({
-    where: {
-      email: session?.user?.email!,
-    },
-    include: {
-      cartItems: {
-        include: {
-          product: true,
-        },
-      },
-    },
-  });
+  const user = await getUserByEmailWithCartItemsAndProducts(
+    session?.user?.email!
+  );
 
-  const cartItems = user?.cartItems || [];
+  const cartItems = user?.CartItem || [];
   return (
     <div className='min-h-screen p-4 bg-gray-100 sm:pt-32'>
       <Header user={user} render={false} />
@@ -35,7 +27,7 @@ export default async function Page() {
               key={cartItem.id}
               className='flex items-center p-4 bg-white rounded-lg shadow'>
               <Image
-                src={cartItem.product.images[0]}
+                src={cartItem?.Product?.displayImage}
                 width={150}
                 height={150}
                 alt='Product Image'
@@ -43,13 +35,13 @@ export default async function Page() {
               />
               <div className='ml-4 flex-1'>
                 <h2 className='text-lg font-semibold'>
-                  {cartItem.product.productName}
+                  {cartItem.Product.productName}
                 </h2>
                 <p className='text-gray-500'>
-                  Price: ${cartItem.product.price}
+                  Price: ${cartItem.Product.price}
                 </p>
                 <div className='flex items-center mt-2 space-x-4'>
-                  <SizeQuantityUpdate cartItem={cartItem} />
+                  <SizeQuantityUpdate CartItem={cartItem} />
                 </div>
               </div>
               <CartRemoveButton cartId={cartItem.id} />

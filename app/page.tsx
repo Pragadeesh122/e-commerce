@@ -6,22 +6,12 @@ import SectionHeader from "./components/SectionHeader";
 import Header from "./components/Header";
 import FeatureSection from "./components/FeatureSection";
 import Footer from "./components/Footer";
+import {getImages, getUserByEmail} from "./lib/supabase/helpers";
 
 export default async function Home() {
   const session = await auth();
-  const images = await prisma.product.findMany();
-  const user = await prisma.user.findUnique({
-    where: {
-      email: session?.user?.email!,
-    },
-    select: {
-      name: true,
-      email: true,
-      image: true,
-      id: true,
-      cartItems: true,
-    },
-  });
+  const images = await getImages();
+  const user = await getUserByEmail(session?.user?.email!);
 
   const trending = images.filter((product) => product.isTrending);
   const otherSections = images.filter((product) => !product.isTrending);

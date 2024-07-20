@@ -10,14 +10,12 @@ import {
 } from "@/app/components/ui/carousel";
 import {auth} from "@/app/lib/auth";
 import prisma from "@/app/lib/db";
+import {getUserByEmail} from "@/app/lib/supabase/helpers";
 import Image from "next/image";
 
 export default async function Page({params}: {params: {productId: string}}) {
   const session = await auth();
-  const user = await prisma.user.findUnique({
-    where: {email: session?.user?.email!},
-    select: {name: true, email: true, image: true, id: true, cartItems: true},
-  });
+  const user = await getUserByEmail(session?.user?.email!);
 
   const product = await prisma.product.findUnique({
     where: {id: params.productId},

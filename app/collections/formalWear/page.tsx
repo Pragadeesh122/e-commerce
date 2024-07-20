@@ -2,14 +2,11 @@ import FeatureSection from "@/app/components/FeatureSection";
 import Header from "@/app/components/Header";
 import {auth} from "@/app/lib/auth";
 import prisma from "@/app/lib/db";
+import {getUserByEmail} from "@/app/lib/supabase/helpers";
 
 export default async function Page() {
   const session = await auth();
-  const user = await prisma.user.findUnique({
-    where: {email: session?.user?.email!},
-    select: {name: true, email: true, image: true, id: true, cartItems: true},
-  });
-
+  const user = await getUserByEmail(session?.user?.email!);
   const formalWears = await prisma.product.findMany({
     where: {
       wear: "Formal wear",

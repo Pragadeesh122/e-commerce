@@ -36,7 +36,7 @@ export default function Header({
     name: string;
     email: string;
     image: string | null;
-    cartItems: {id: string; quantity: number; productId: string}[];
+    CartItem: {id: string; quantity: number; productId: string}[];
   } | null;
 }) {
   return (
@@ -203,7 +203,7 @@ export default function Header({
 
               <div className='absolute h-5 w-5 border-2 border-slate-900  rounded-full top-[-7px] left-7 '>
                 <span className='flex text-xs items-start justify-center top-20'>
-                  {user?.cartItems?.length}
+                  {user?.CartItem?.length}
                 </span>
               </div>
             </Link>
