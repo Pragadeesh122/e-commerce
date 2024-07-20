@@ -1,6 +1,5 @@
 import AddToCart from "@/app/components/AddToCart";
 import Header from "@/app/components/Header";
-import {Button} from "@/app/components/ui/button";
 import {
   Carousel,
   CarouselContent,
@@ -9,26 +8,14 @@ import {
   CarouselPrevious,
 } from "@/app/components/ui/carousel";
 import {auth} from "@/app/lib/auth";
-import prisma from "@/app/lib/db";
-import {getUserByEmail} from "@/app/lib/supabase/helpers";
+import {getProductById, getUserByEmail} from "@/app/lib/supabase/helpers";
 import Image from "next/image";
 
 export default async function Page({params}: {params: {productId: string}}) {
   const session = await auth();
   const user = await getUserByEmail(session?.user?.email!);
 
-  const product = await prisma.product.findUnique({
-    where: {id: params.productId},
-    select: {
-      id: true,
-      productName: true,
-      price: true,
-      description: true,
-      images: true,
-      size: true,
-      quantity: true,
-    },
-  });
+  const product = await getProductById(params.productId);
   return (
     <div className='max-w-7xl mx-auto p-6 flex items-center justify-center h-screen'>
       <Header user={user} render={false} />
@@ -36,7 +23,7 @@ export default async function Page({params}: {params: {productId: string}}) {
         <div className='flex-1'>
           <Carousel>
             <CarouselContent>
-              {product?.images.map((image) => (
+              {product?.images.map((image: string) => (
                 <CarouselItem key={image}>
                   <Image
                     src={image}

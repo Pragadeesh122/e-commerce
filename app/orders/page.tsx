@@ -3,31 +3,16 @@ import prisma from "../lib/db";
 import {Badge} from "@/app/components/ui/badge";
 import Image from "next/image";
 import Header from "../components/Header";
-import {getUserByEmail} from "../lib/supabase/helpers";
+import {getUserByEmail, getUserByEmailWithOrder} from "../lib/supabase/helpers";
 
 export default async function Page() {
   const session = await auth();
-  const user = await prisma.user.findUnique({
-    where: {
-      email: session?.user?.email!,
-    },
-    include: {
-      orders: {
-        include: {
-          orderItems: {
-            include: {
-              product: true,
-            },
-          },
-        },
-      },
-    },
-  });
+  const user = await getUserByEmailWithOrder(session?.user?.email!);
 
   const headerUser = await getUserByEmail(session?.user?.email!);
 
-  const orderItems = user?.orders.flatMap((order: any) =>
-    order.orderItems.map((item: any) => ({
+  const orderItems = user?.Order.flatMap((order: any) =>
+    order.OrderItem.map((item: any) => ({
       ...item,
       createdAt: order.createdAt,
     }))
@@ -59,7 +44,7 @@ export default async function Page() {
               </div>
               <div className='mt-4 flex justify-end'>
                 <Image
-                  src={order.product.displayImage}
+                  src={order.Product.displayImage}
                   alt={`Order ${order.id} product`}
                   width={100}
                   height={100}

@@ -2,9 +2,8 @@ import NextAuth, {Session} from "next-auth";
 import Google from "next-auth/providers/google";
 import Github from "next-auth/providers/github";
 import credentials from "next-auth/providers/credentials";
-import prisma from "./db";
 import bycrptjs from "bcryptjs";
-import {Prisma} from "@prisma/client";
+import {createUserWithOauth, getUser} from "./supabase/helpers";
 
 const authConfig = {
   providers: [
@@ -25,11 +24,7 @@ const authConfig = {
           return null;
         }
         try {
-          const user = await prisma.user.findUnique({
-            where: {
-              email: credentials?.email as string,
-            },
-          });
+          const user = await getUser(credentials.email as string);
           if (user) {
             const isMatch = await bycrptjs.compare(
               credentials.password as string,
@@ -54,13 +49,9 @@ const authConfig = {
     },
     async signIn({user}: {user: any}) {
       try {
-        const existingGuest = await prisma.user.findUnique({
-          where: {
-            email: user.email,
-          },
-        });
+        const existingGuest = getUser(user.email as string);
 
-        let authUser: Prisma.UserCreateInput;
+        let authUser;
 
         if (!existingGuest) {
           authUser = {
@@ -68,9 +59,7 @@ const authConfig = {
             name: user.name as string,
             image: user.image as string,
           };
-          await prisma.user.create({
-            data: authUser,
-          });
+          await createUserWithOauth(authUser);
         }
 
         return true;

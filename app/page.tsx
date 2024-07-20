@@ -1,7 +1,6 @@
 import Image from "next/image";
 import {auth} from "@/app/lib/auth";
 import UploadData from "./components/UploadData";
-import prisma from "./lib/db";
 import SectionHeader from "./components/SectionHeader";
 import Header from "./components/Header";
 import FeatureSection from "./components/FeatureSection";

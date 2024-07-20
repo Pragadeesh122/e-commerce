@@ -6,9 +6,8 @@ import {Prisma} from "@prisma/client";
 
 import {auth, signIn, signOut} from "@/app/lib/auth";
 import {validateFormData} from "@/app/data/formDataValidation";
-import {uploadImage} from "@/app/lib/supabase/helpers";
+import {createUserWithOauth, uploadImage} from "@/app/lib/supabase/helpers";
 import {revalidatePath} from "next/cache";
-import {redirect} from "next/navigation";
 
 export async function googleSignInAction() {
   await signIn("google", {redirectTo: "/"});
@@ -35,14 +34,10 @@ export async function createUser(formData: FormData) {
     return {error: validation};
   }
 
+  const userData = {name: name, email: email, password: hashedPassword};
+
   try {
-    await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-      },
-    });
+    await createUserWithOauth(userData);
   } catch (error: any) {
     return {error: "The name or email is already in use"};
   }
@@ -74,6 +69,15 @@ export async function addProduct(formData: FormData) {
     if (!image) {
       return {error: "Error uploading image"};
     }
+
+    const productData = {
+      productName: productName as string,
+      description: description as string,
+      size: sizes as string[],
+      price: parseFloat(price as string),
+      displayImage: image,
+      wear: "casual",
+    };
 
     const product = await prisma.product.create({
       data: {

@@ -1,7 +1,6 @@
 import FeatureSection from "@/app/components/FeatureSection";
 import Header from "@/app/components/Header";
 import {auth} from "@/app/lib/auth";
-import prisma from "@/app/lib/db";
 import {getMensWear, getUserByEmail} from "@/app/lib/supabase/helpers";
 
 export default async function Page() {

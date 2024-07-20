@@ -1,16 +1,13 @@
 import FeatureSection from "@/app/components/FeatureSection";
 import Header from "@/app/components/Header";
 import {auth} from "@/app/lib/auth";
-import prisma from "@/app/lib/db";
-import {getUserByEmail} from "@/app/lib/supabase/helpers";
+import {getEventWear, getUserByEmail} from "@/app/lib/supabase/helpers";
 
 export default async function Page() {
   const session = await auth();
   const user = await getUserByEmail(session?.user?.email!);
 
-  const eventWears = await prisma.product.findMany({
-    where: {wear: "Event wear"},
-  });
+  const eventWears = await getEventWear();
 
   return (
     <div className='flex flex-col'>

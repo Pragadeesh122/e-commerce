@@ -1,9 +1,7 @@
 import Image from "next/image";
 import {auth} from "../lib/auth";
-import prisma from "../lib/db";
 import {Button} from "../components/ui/button";
 import Header from "../components/Header";
-import {removeFromCart, updateCartItem} from "../lib/actions";
 import CartRemoveButton from "../components/CartRemoveButton";
 import {SizeQuantityUpdate} from "../components/SizeQuantityUpdate";
 import Link from "next/link";

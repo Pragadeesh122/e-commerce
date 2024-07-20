@@ -1,18 +1,13 @@
 import FeatureSection from "@/app/components/FeatureSection";
 import Header from "@/app/components/Header";
 import {auth} from "@/app/lib/auth";
-import prisma from "@/app/lib/db";
-import {getUserByEmail} from "../lib/supabase/helpers";
+import {getRecommendedProducts, getUserByEmail} from "../lib/supabase/helpers";
 
 export default async function Page() {
   const session = await auth();
   const user = await getUserByEmail(session?.user?.email!);
 
-  const recommendations = await prisma.product.findMany({
-    where: {
-      OR: [{isPopular: true}, {isTopRated: true}, {isOnSale: true}],
-    },
-  });
+  const recommendations = await getRecommendedProducts();
 
   return (
     <div className='flex flex-col'>
