@@ -19,7 +19,7 @@ export default function CartRemoveButton({cartId}: {cartId: string}) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className='self-end'>
+    <form onSubmit={handleSubmit} className='sm:self-end'>
       <input hidden defaultValue={cartId} name='cartId' />
       <Button
         disabled={pending}

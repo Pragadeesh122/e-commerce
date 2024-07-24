@@ -2,12 +2,25 @@
 
 import prisma from "@/app/lib/db";
 import bycrptjs from "bcryptjs";
-import {Prisma} from "@prisma/client";
-
 import {auth, signIn, signOut} from "@/app/lib/auth";
 import {validateFormData} from "@/app/data/formDataValidation";
-import {createUserWithOauth, uploadImage} from "@/app/lib/supabase/helpers";
+import {
+  createCartItem,
+  createProduct,
+  createUserOrder,
+  createUserOrderItem,
+  createUserWithOauth,
+  getUserByEmail,
+  getUserByEmailWithCartItemsAndProducts,
+  removeCartItem,
+  updateCartItemQuantity,
+  updateCartItemQuantityAlreadyExists,
+  updateCartItemSize,
+  updateUserProfile,
+  uploadImage,
+} from "@/app/lib/supabase/helpers";
 import {revalidatePath} from "next/cache";
+import {createId} from "@paralleldrive/cuid2";
 
 export async function googleSignInAction() {
   await signIn("google", {redirectTo: "/"});
@@ -70,25 +83,13 @@ export async function addProduct(formData: FormData) {
       return {error: "Error uploading image"};
     }
 
-    const productData = {
-      productName: productName as string,
-      description: description as string,
-      size: sizes as string[],
-      price: parseFloat(price as string),
-      displayImage: image,
-      wear: "casual",
-    };
-
-    const product = await prisma.product.create({
-      data: {
-        productName: productName as string,
-        description: description as string,
-        size: sizes as string[],
-        price: parseFloat(price as string),
-        displayImage: image,
-        wear: "casual",
-      },
-    });
+    const product = await createProduct(
+      productName as string,
+      description as string,
+      sizes,
+      price as string,
+      image
+    );
 
     if (!product) {
       return {error: "Error creating product"};
@@ -117,28 +118,21 @@ export async function updateProfile(formData: FormData) {
     return {error: validation};
   }
 
-  let user: Prisma.UserUpdateInput = {
-    name: name as string,
+  let userUpdateData: any = {
+    name: name,
   };
-  let userImage: string = "";
 
-  if (!(image?.name === "undefined")) {
+  if (image && image.name !== "undefined") {
     const imageUrl = await uploadImage(image, "profile_images");
     if (!imageUrl) {
       return {error: "Error uploading image"};
     }
-    user = {
-      ...user,
-      image: imageUrl as string,
-    };
+    userUpdateData.image = imageUrl;
   }
 
   if (password) {
     const hashedPassword = bycrptjs.hashSync(password, 10);
-    user = {
-      ...user,
-      password: hashedPassword as string,
-    };
+    userUpdateData.password = hashedPassword;
   }
 
   try {
@@ -147,12 +141,7 @@ export async function updateProfile(formData: FormData) {
       return {error: "You are Unauthorized to update this profile"};
     }
     const userEmail = session?.user?.email as string;
-    await prisma.user.update({
-      where: {
-        email: userEmail,
-      },
-      data: user,
-    });
+    await updateUserProfile(userEmail, userUpdateData);
     revalidatePath("/profile");
     return {success: "Profile updated successfully"};
   } catch (err: any) {
@@ -172,50 +161,27 @@ export async function addToCart(formData: FormData) {
 
   try {
     const session = await auth();
-    const alreadyInCart = await prisma.user.findFirst({
-      where: {
-        email: session?.user?.email!,
-      },
-      include: {
-        cartItems: true,
-      },
-    });
+    const alreadyInCart = await getUserByEmail(session?.user?.email!);
 
-    const cartItem = alreadyInCart?.cartItems?.filter(
+    const cartItem = alreadyInCart?.CartItem?.filter(
       (item) => item.size === size && item.productId === productId
     );
 
     if (cartItem?.length) {
       cartItem.forEach(async (item) => {
-        await prisma.cartItem.update({
-          where: {
-            id: item.id,
-          },
-          data: {
-            quantity: item.quantity + quantity,
-          },
-        });
+        await updateCartItemQuantityAlreadyExists(item.id, item.quantity + 1);
       });
     }
 
     if (!cartItem?.length) {
       console.log("Creating new cart item");
-      await prisma.cartItem.create({
-        data: {
-          product: {
-            connect: {
-              id: productId,
-            },
-          },
-          user: {
-            connect: {
-              id: userId,
-            },
-          },
-          quantity,
-          size,
-        },
-      });
+      const cartData = {
+        productId,
+        userId,
+        quantity,
+        size,
+      };
+      await createCartItem(cartData);
 
       revalidatePath("/products/[productId]", "page");
     }
@@ -228,11 +194,7 @@ export async function addToCart(formData: FormData) {
 export async function removeFromCart(formData: FormData) {
   const cartItemId = formData.get("cartId") as string;
   try {
-    await prisma.cartItem.delete({
-      where: {
-        id: cartItemId,
-      },
-    });
+    await removeCartItem(cartItemId);
     revalidatePath("/cart");
   } catch (error: any) {
     console.error("Error removing from cart:", error);
@@ -248,25 +210,11 @@ export async function updateCartItem(formData: FormData) {
   try {
     if (size) {
       console.log("Updating size");
-      await prisma.cartItem.update({
-        where: {
-          id: cartItemId,
-        },
-        data: {
-          size,
-        },
-      });
+      await updateCartItemSize(cartItemId, size);
     }
     if (quantity) {
       console.log("Updating quantity");
-      await prisma.cartItem.update({
-        where: {
-          id: cartItemId,
-        },
-        data: {
-          quantity,
-        },
-      });
+      await updateCartItemQuantity(cartItemId, quantity);
     }
   } catch (error: any) {
     console.error("Error updating cart item:", error);
@@ -281,40 +229,34 @@ export async function createOrder() {
       throw new Error("You are not authorized to perform this action");
     }
 
-    const user = await prisma.user.findUnique({
-      where: {email: session?.user?.email!},
-      include: {cartItems: {include: {product: true}}},
-    });
+    const user = await getUserByEmailWithCartItemsAndProducts(
+      session?.user?.email!
+    );
 
-    if (!user || !user.cartItems.length) {
+    if (!user || !user.CartItem.length) {
       throw new Error("No items in the cart");
     }
 
-    const total = user.cartItems.reduce(
+    const total = user.CartItem.reduce(
       (acc, item) => acc + item.quantity * item.product.price,
       0
     );
 
-    // Step 1: Create the Order
-    const newOrder = await prisma.order.create({
-      data: {
-        userId: user.id,
-        total,
-      },
-    });
+    const newOrder = await createUserOrder(user.id, total);
 
     // Step 2: Create the OrderItems
-    const orderItems = user.cartItems.map((cartItem) => ({
-      orderId: newOrder.id,
-      productId: cartItem.productId,
-      quantity: cartItem.quantity,
-      price: cartItem.product.price,
+    const orderItems = user.CartItem.map((cartItem) => ({
+      id: createId() as string,
+      orderId: newOrder?.id as string,
+      productId: cartItem.productId as string,
+      quantity: cartItem.quantity as number,
+      price: cartItem.product.price as number,
     }));
 
-    await prisma.orderItem.createMany({data: orderItems});
+    await createUserOrderItem(orderItems);
 
     // Clear the cart
-    await prisma.cartItem.deleteMany({where: {userId: user.id}});
+    await removeCartItem(user.id);
     return {success: true};
   } catch (error: any) {
     console.error("Error creating order:", error);

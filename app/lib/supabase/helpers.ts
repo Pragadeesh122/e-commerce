@@ -1,4 +1,5 @@
 import {supabase} from "./supabase";
+import {createId} from "@paralleldrive/cuid2";
 
 export async function uploadImage(file: File, path: string) {
   const imgName = `${Math.random()}-${file.name}`.replaceAll("/", "");
@@ -224,7 +225,9 @@ export async function createUserWithOauth(userData: {
   image?: string;
   password?: string;
 }) {
-  const {data, error} = await supabase.from("User").insert([userData]);
+  const {data, error} = await supabase
+    .from("User")
+    .insert([{...userData, id: createId()}]);
 
   if (error) {
     console.error("Error creating user:", error.message);
@@ -261,4 +264,135 @@ export async function getUserByEmailWithOrder(email: string) {
   }
 
   return data;
+}
+
+export async function createProduct(
+  productName: string,
+  description: string,
+  sizes: string[],
+  price: string,
+  image: string
+) {
+  const {data, error} = await supabase.from("Product").insert([
+    {
+      id: createId(),
+      productName: productName,
+      description: description,
+      size: sizes,
+      price: parseFloat(price),
+      displayImage: image,
+      wear: "casual",
+    },
+  ]);
+
+  if (error) {
+    console.error("Error creating product:", error.message);
+    return null;
+  }
+
+  return data;
+}
+
+export async function updateUserProfile(
+  email: string,
+  updateData: {name?: string; image?: string; password?: string}
+) {
+  const {error} = await supabase
+    .from("User")
+    .update(updateData)
+    .eq("email", email);
+
+  if (error) {
+    console.error("Error updating user:", error.message);
+    return null;
+  }
+}
+
+export async function updateCartItemQuantityAlreadyExists(
+  id: string,
+  quantity: number
+) {
+  const {error} = await supabase
+    .from("CartItem")
+    .update({quantity})
+    .eq("id", id);
+
+  if (error) {
+    console.error("Error updating cart item:", error.message);
+    return null;
+  }
+}
+
+export async function createCartItem(cartData: {
+  productId: string;
+  userId: string;
+  quantity: number;
+  size: string;
+}) {
+  const {data, error} = await supabase
+    .from("CartItem")
+    .insert([{...cartData, id: createId()}])
+    .select();
+
+  if (error) {
+    console.error("Error creating cart item:", error.message);
+    return null;
+  }
+}
+
+export async function removeCartItem(id: string) {
+  const {error} = await supabase.from("CartItem").delete().eq("id", id);
+
+  if (error) {
+    console.error("Error removing cart item:", error.message);
+    return null;
+  }
+}
+
+export async function updateCartItemSize(id: string, size: string) {
+  const {error} = await supabase.from("CartItem").update(size).eq("id", id);
+
+  if (error) {
+    console.error("Error updating cart item:", error.message);
+    return null;
+  }
+}
+
+export async function updateCartItemQuantity(id: string, quantity: number) {
+  const {error} = await supabase.from("CartItem").update(quantity).eq("id", id);
+
+  if (error) {
+    console.error("Error updating cart item:", error.message);
+    return null;
+  }
+}
+
+export async function createUserOrder(userId: string, total: number) {
+  const {data, error} = await supabase
+    .from("Order")
+    .insert([{id: createId(), createdAt: Date.now(), userId, total}])
+    .select();
+
+  if (error) {
+    console.error("Error creating order:", error.message);
+    return null;
+  }
+  return data[0];
+}
+
+export async function createUserOrderItem(
+  orderItemData: {
+    id: string;
+    orderId: string;
+    productId: string;
+    quantity: number;
+    price: number;
+  }[]
+) {
+  const {error} = await supabase.from("OrderItem").insert([orderItemData]);
+
+  if (error) {
+    console.error("Error creating order item:", error.message);
+    return null;
+  }
 }

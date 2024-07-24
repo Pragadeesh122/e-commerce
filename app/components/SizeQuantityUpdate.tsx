@@ -53,7 +53,7 @@ export function SizeQuantityUpdate({CartItem}: {CartItem: any}) {
           id={`size${CartItem.id}`}
           name='size'
           defaultValue={CartItem.size}
-          className='mt-1 block w-24 p-2 border border-gray-300 rounded-md'
+          className='mt-1 block w-20 sm:w-24 p-2 border border-gray-300 rounded-md'
           onChange={handleSizeChange}>
           {CartItem.Product.size.map((size: any) => (
             <option key={size} value={size}>

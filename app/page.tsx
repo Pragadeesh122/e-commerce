@@ -23,8 +23,8 @@ export default async function Home() {
   return (
     <div className='flex flex-col'>
       <Header user={user} render={false} />
-      <main className='flex-1 12px sm:16px md:px-24 bg-muted'>
-        <section className='w-full py-10 md:pt-36'>
+      <main className='flex-1 px-8 sm:px-16 md:px-24 bg-muted'>
+        <section className='w-full py-10 pt-24 md:pt-36'>
           <div className='grid gap-4'>
             <SectionHeader
               subHeading='Discover the Latest Fashion Trends'

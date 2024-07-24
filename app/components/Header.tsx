@@ -23,6 +23,7 @@ import {ShoppingCartIcon} from "@heroicons/react/24/outline";
 import {signOutAction} from "@/app/lib/actions";
 
 import Image from "next/image";
+import MobileNav from "./MobileNav";
 
 export default function Header({
   userAccount = true,
@@ -41,7 +42,7 @@ export default function Header({
 }) {
   return (
     <header className='fixed left-0 right-0 top-0 bg-background border-b z-50 '>
-      <div className='mx-auto flex items-center justify-between  gap-10 px-4 md:px-24 sm:py-5'>
+      <div className='mx-auto flex items-center justify-between  gap-10 px-2 md:px-24 py-5'>
         <Link href='/' className='flex items-center gap-2' prefetch={false}>
           <span className='font-bold text-lg'>EleganceHub</span>
         </Link>
@@ -187,7 +188,7 @@ export default function Header({
           </nav>
         )}
         {render && (
-          <div className='relative flex-1 max-w-sm'>
+          <div className='hidden sm:block relative flex-1 max-w-sm'>
             <div className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
             <Input
               type='search'
@@ -196,65 +197,70 @@ export default function Header({
             />
           </div>
         )}
-        <div className='flex gap-8 items-center justify-content'>
-          <div className='relative'>
-            <Link href='/cart'>
-              <ShoppingCartIcon className='h-10 w-10' />
+        <div className='flex gap-4 justify-center items-center'>
+          <div className='flex gap-8 items-center justify-content'>
+            <div className='relative'>
+              <Link href='/cart'>
+                <ShoppingCartIcon className='h-8 w-8' />
 
-              <div className='absolute h-5 w-5 border-2 border-slate-900  rounded-full top-[-7px] left-7 '>
-                <span className='flex text-xs items-start justify-center top-20'>
-                  {user?.CartItem?.length}
-                </span>
-              </div>
-            </Link>
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              {user?.image ? (
-                <Button
-                  variant='ghost'
-                  size='icon'
-                  className='rounded-full border w-8 h-8 focus-visible:ring-0'>
-                  <Image
-                    src={user?.image!}
-                    width='32'
-                    height='32'
-                    className='rounded-full'
-                    alt='Avatar'
-                  />
-                  <span className='sr-only'>Toggle user menu</span>
-                </Button>
-              ) : (
-                <Button
-                  variant='ghost'
-                  size='icon'
-                  className='rounded-full border w-8 h-8'>
-                  <div className='h-6 w-6 '></div>
-                </Button>
-              )}
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align='end'>
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <Link href='/profile'>
-                <DropdownMenuItem>Profile</DropdownMenuItem>
+                <div className='absolute h-5 w-5 border-2 border-slate-900  rounded-full top-[-7px] left-6 '>
+                  <span className='flex text-xs items-start justify-center top-20'>
+                    {user?.CartItem?.length}
+                  </span>
+                </div>
               </Link>
-              <Link href='/orders'>
-                <DropdownMenuItem>Orders</DropdownMenuItem>
-              </Link>
-              <Link href='/wishlist'>
-                <DropdownMenuItem>Wishlist</DropdownMenuItem>
-              </Link>
-              <DropdownMenuSeparator />
-              <form action={signOutAction}>
-                <DropdownMenuItem className='py-0'>
-                  <Button variant='ghost' className='p-0'>
-                    Logout
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                {user?.image ? (
+                  <Button
+                    variant='ghost'
+                    size='icon'
+                    className='rounded-full border w-8 h-8 focus-visible:ring-0'>
+                    <Image
+                      src={user?.image!}
+                      width='32'
+                      height='32'
+                      className='rounded-full'
+                      alt='Avatar'
+                    />
+                    <span className='sr-only'>Toggle user menu</span>
                   </Button>
-                </DropdownMenuItem>
-              </form>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                ) : (
+                  <Button
+                    variant='ghost'
+                    size='icon'
+                    className='rounded-full border w-8 h-8'>
+                    <div className='h-6 w-6 '></div>
+                  </Button>
+                )}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align='end'>
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <Link href='/profile'>
+                  <DropdownMenuItem>Profile</DropdownMenuItem>
+                </Link>
+                <Link href='/orders'>
+                  <DropdownMenuItem>Orders</DropdownMenuItem>
+                </Link>
+                <Link href='/wishlist'>
+                  <DropdownMenuItem>Wishlist</DropdownMenuItem>
+                </Link>
+                <DropdownMenuSeparator />
+                <form action={signOutAction}>
+                  <DropdownMenuItem className='py-0'>
+                    <Button variant='ghost' className='p-0'>
+                      Logout
+                    </Button>
+                  </DropdownMenuItem>
+                </form>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <div>
+            <MobileNav />
+          </div>
         </div>
       </div>
     </header>
