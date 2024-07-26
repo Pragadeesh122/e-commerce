@@ -13,6 +13,7 @@ import {
   getUserByEmail,
   getUserByEmailWithCartItemsAndProducts,
   removeCartItem,
+  removeCartItemByUserId,
   updateCartItemQuantity,
   updateCartItemQuantityAlreadyExists,
   updateCartItemSize,
@@ -235,6 +236,8 @@ export async function createOrder() {
       session?.user?.email!
     );
 
+    console.log("User:", user);
+
     if (!user || !user.CartItem.length) {
       throw new Error("No items in the cart");
     }
@@ -266,8 +269,7 @@ export async function createOrder() {
 
     // Step 3: Remove the cart items
 
-    const removedItems = await removeCartItem(user.id);
-    console.log("Removed Items:", removedItems);
+    await removeCartItemByUserId(user.id);
     revalidatePath("/orders");
     return {success: true};
   } catch (error: any) {
