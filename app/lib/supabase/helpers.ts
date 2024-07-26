@@ -384,15 +384,13 @@ export async function createUserOrder(userId: string, total: number) {
   return data[0];
 }
 
-export async function createUserOrderItem(
-  orderItemData: {
-    id: string;
-    orderId: string;
-    productId: string;
-    quantity: number;
-    price: number;
-  }[]
-) {
+export async function createUserOrderItem(orderItemData: {
+  id: string;
+  orderId: string;
+  productId: string;
+  quantity: number;
+  price: number;
+}) {
   const {data, error} = await supabase
     .from("OrderItem")
     .insert([orderItemData]);

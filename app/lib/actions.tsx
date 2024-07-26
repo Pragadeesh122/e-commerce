@@ -21,6 +21,7 @@ import {
 } from "@/app/lib/supabase/helpers";
 import {revalidatePath} from "next/cache";
 import {createId} from "@paralleldrive/cuid2";
+import {create} from "domain";
 
 export async function googleSignInAction() {
   await signIn("google", {redirectTo: "/"});
@@ -259,8 +260,14 @@ export async function createOrder() {
 
     console.log("Order Items:", orderItems);
 
-    const orderItem = await createUserOrderItem(orderItems);
+    orderItems.forEach(async (item) => {
+      await createUserOrderItem(item);
+    });
+
+    // Step 3: Remove the cart items
+
     const removedItems = await removeCartItem(user.id);
+    console.log("Removed Items:", removedItems);
     revalidatePath("/orders");
     return {success: true};
   } catch (error: any) {
