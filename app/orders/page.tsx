@@ -1,15 +1,15 @@
-import {auth} from "../lib/auth";
-import prisma from "../lib/db";
 import {Badge} from "@/app/components/ui/badge";
 import Image from "next/image";
 import Header from "../components/Header";
 import {getUserByEmail, getUserByEmailWithOrder} from "../lib/supabase/helpers";
+import {createClient} from "../lib/supabase/server";
 
 export default async function Page() {
-  const session = await auth();
-  const user = await getUserByEmailWithOrder(session?.user?.email!);
+  const supabaseServer = createClient();
+  const {data} = await supabaseServer.auth.getUser();
+  const user = await getUserByEmailWithOrder(data?.user?.email!);
 
-  const headerUser = await getUserByEmail(session?.user?.email!);
+  const headerUser = await getUserByEmail(data?.user?.email!);
 
   const orderItems = user?.Order.flatMap((order: any) =>
     order.OrderItem.map((item: any) => ({

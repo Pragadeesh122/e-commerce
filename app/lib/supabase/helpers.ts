@@ -1,5 +1,7 @@
+import {createClient} from "@/app/lib/supabase/server";
 import {supabase} from "./supabase";
 import {createId} from "@paralleldrive/cuid2";
+import {createClient as clientSupabase} from "@/app/lib/supabase/client";
 
 export async function uploadImage(file: File, path: string) {
   const imgName = `${Math.random()}-${file.name}`.replaceAll("/", "");
@@ -10,11 +12,11 @@ export async function uploadImage(file: File, path: string) {
     return null;
   }
 
-  const imageUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/${path}/${imgName}`;
+  const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${path}/${imgName}`;
   return imageUrl;
 }
 
-export async function getImages() {
+export async function getProdcuts() {
   const {data: images, error} = await supabase
     .from("Product") // assuming your table name is 'products'
     .select("*");
@@ -221,19 +223,40 @@ export async function getUser(email: string) {
 
 export async function createUserWithOauth(userData: {
   email: string;
-  name: string;
+  displayName: string;
   image?: string;
-  password?: string;
+  password: string;
 }) {
-  const {data, error} = await supabase
-    .from("User")
-    .insert([{...userData, id: createId()}]);
+  const supabaseServer = createClient();
+  const {data, error} = await supabaseServer.auth.signUp({
+    email: userData.email,
+    password: userData.password,
+    options: {
+      data: {
+        name: userData.displayName,
+      },
+    },
+  });
 
   if (error) {
-    console.error("Error creating user:", error.message);
-    return null;
+    throw Error(error.message);
   }
+  return data;
+}
 
+export async function signInTheUser(userData: {
+  email: string;
+  password: string;
+}) {
+  const supabaseServer = createClient();
+
+  const {data, error} = await supabaseServer.auth.signInWithPassword({
+    email: userData.email,
+    password: userData.password,
+  });
+  if (error) {
+    console.error("Error signing in:", error);
+  }
   return data;
 }
 
@@ -395,4 +418,13 @@ export async function createUserOrderItem(
     console.error("Error creating order item:", error.message);
     return null;
   }
+}
+
+export async function clientUser() {
+  const supabaseClient = clientSupabase();
+  const {data, error} = await supabaseClient.auth.getUser();
+  if (error) {
+    console.error("Error getting user:", error);
+  }
+  return data;
 }

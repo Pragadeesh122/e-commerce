@@ -4,32 +4,25 @@ import Link from "next/link";
 import {Button} from "./ui/button";
 import {Input} from "./ui/input";
 import {createUser} from "../lib/actions";
-import {useEffect, useState} from "react";
-import {useRouter} from "next/navigation";
+import {useState} from "react";
 
 export default function Register() {
   type AccountResponse = {
-    success?: string;
+    verify?: string;
     error?: string;
   };
 
   const [accountCreated, setAccountCreated] = useState<
     AccountResponse | undefined
   >();
-  const router = useRouter();
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const response = await createUser(form);
+    console.log(response);
     setAccountCreated(response);
   }
-
-  useEffect(() => {
-    if (accountCreated?.success) {
-      router.push("/login");
-    }
-  }, [accountCreated, router]);
 
   return (
     <form
@@ -67,9 +60,9 @@ export default function Register() {
         <div className='max-w-72  text-sm ml-2'>
           <span
             className={`${
-              accountCreated.success ? "text-green-500" : "text-red-500"
+              accountCreated.verify ? "text-green-500" : "text-red-500"
             }`}>
-            {accountCreated.success ?? accountCreated.error}
+            {accountCreated.verify ?? accountCreated.error}
           </span>
         </div>
       )}

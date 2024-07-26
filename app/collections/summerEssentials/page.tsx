@@ -1,11 +1,13 @@
 import Header from "@/app/components/Header";
-import {auth} from "@/app/lib/auth";
+
 import prisma from "@/app/lib/db";
 import {getUserByEmail} from "@/app/lib/supabase/helpers";
+import {createClient} from "@/app/lib/supabase/server";
 
 export default async function Page() {
-  const session = await auth();
-  const user = await getUserByEmail(session?.user?.email!);
+  const supabaseServer = createClient();
+  const {data} = await supabaseServer.auth.getUser();
+  const user = await getUserByEmail(data?.user?.email!);
 
   return (
     <div className='flex flex-col'>

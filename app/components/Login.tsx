@@ -6,11 +6,7 @@ import Divider from "@/app/components/Divider";
 import github from "@/public/Github.png";
 import google from "@/public/Google.png";
 import Image from "next/image";
-import {
-  githubSignInAction,
-  googleSignInAction,
-  signInUser,
-} from "@/app/lib/actions";
+import {signInUser, signInWithGoogle} from "@/app/lib/actions";
 import Link from "next/link";
 import {useRouter, usePathname} from "next/navigation";
 import {useEffect, useState} from "react";
@@ -28,20 +24,19 @@ export default function Login() {
       setPending(true);
       const form = new FormData(event.currentTarget);
       const response = await signInUser(form);
-      if (response.error) {
+      if (response?.error) {
         setError(response.error);
+        setPending(false);
       } else {
         router.push("/");
       }
     } catch (error) {
       console.log(error);
+    } finally {
       setPending(false);
     }
   }
 
-  useEffect(() => {
-    if (pending && pathName === "/") setPending(false);
-  }, [pending, pathName]);
   return (
     <div className=' flex flex-col gap-6 px-6 py-8 border-gray-400 border-2 rounded-md'>
       <h1 className='text-center text-xl font-semibold'>Login</h1>
@@ -92,7 +87,7 @@ export default function Login() {
         <Divider />
       </div>
       <form>
-        <Button formAction={googleSignInAction} className='w-full'>
+        <Button formAction={signInWithGoogle} className='w-full'>
           Sign in with Google{" "}
           <Image
             className='ml-3'
@@ -103,7 +98,7 @@ export default function Login() {
         </Button>
       </form>
       <form>
-        <Button formAction={githubSignInAction} className='w-full'>
+        <Button className='w-full'>
           Sign in with Github{" "}
           <Image
             className='ml-3'

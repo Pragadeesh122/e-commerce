@@ -20,10 +20,10 @@ import {
 } from "@/app/components/ui/dropdown-menu";
 import {Input} from "@/app/components/ui/input";
 import {ShoppingCartIcon} from "@heroicons/react/24/outline";
-import {signOutAction} from "@/app/lib/actions";
 
 import Image from "next/image";
 import MobileNav from "./MobileNav";
+import {signOutAction} from "../lib/actions";
 
 export default function Header({
   userAccount = true,

@@ -1,11 +1,13 @@
 import FeatureSection from "@/app/components/FeatureSection";
 import Header from "@/app/components/Header";
-import {auth} from "@/app/lib/auth";
+
 import {getRecommendedProducts, getUserByEmail} from "../lib/supabase/helpers";
+import {createClient} from "../lib/supabase/server";
 
 export default async function Page() {
-  const session = await auth();
-  const user = await getUserByEmail(session?.user?.email!);
+  const supabaseServer = createClient();
+  const {data} = await supabaseServer.auth.getUser();
+  const user = await getUserByEmail(data?.user?.email!);
 
   const recommendations = await getRecommendedProducts();
   console.log(recommendations);

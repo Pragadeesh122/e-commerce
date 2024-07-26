@@ -1,17 +1,16 @@
 import Image from "next/image";
-import {auth} from "../lib/auth";
 import {Button} from "../components/ui/button";
 import Header from "../components/Header";
 import CartRemoveButton from "../components/CartRemoveButton";
 import {SizeQuantityUpdate} from "../components/SizeQuantityUpdate";
 import Link from "next/link";
 import {getUserByEmailWithCartItemsAndProducts} from "../lib/supabase/helpers";
+import {createClient} from "../lib/supabase/server";
 
 export default async function Page() {
-  const session = await auth();
-  const user = await getUserByEmailWithCartItemsAndProducts(
-    session?.user?.email!
-  );
+  const supabaseServer = createClient();
+  const {data} = await supabaseServer.auth.getUser();
+  const user = await getUserByEmailWithCartItemsAndProducts(data?.user?.email!);
 
   const cartItems = user?.CartItem || [];
   return (

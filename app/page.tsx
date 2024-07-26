@@ -1,16 +1,17 @@
 import Image from "next/image";
-import {auth} from "@/app/lib/auth";
 import UploadData from "./components/UploadData";
 import SectionHeader from "./components/SectionHeader";
 import Header from "./components/Header";
 import FeatureSection from "./components/FeatureSection";
 import Footer from "./components/Footer";
-import {getImages, getUserByEmail} from "./lib/supabase/helpers";
+import {getProdcuts, getUserByEmail} from "./lib/supabase/helpers";
+import {createClient} from "./lib/supabase/server";
 
 export default async function Home() {
-  const session = await auth();
-  const images = await getImages();
-  const user = await getUserByEmail(session?.user?.email!);
+  const supabase = createClient();
+  const {data} = await supabase.auth.getUser();
+  const images = await getProdcuts();
+  const user = await getUserByEmail(data?.user?.email!);
 
   const trending = images.filter((product) => product.isTrending);
   const otherSections = images.filter((product) => !product.isTrending);

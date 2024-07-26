@@ -7,13 +7,14 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/app/components/ui/carousel";
-import {auth} from "@/app/lib/auth";
 import {getProductById, getUserByEmail} from "@/app/lib/supabase/helpers";
+import {createClient} from "@/app/lib/supabase/server";
 import Image from "next/image";
 
 export default async function Page({params}: {params: {productId: string}}) {
-  const session = await auth();
-  const user = await getUserByEmail(session?.user?.email!);
+  const supabaseServer = createClient();
+  const {data} = await supabaseServer.auth.getUser();
+  const user = await getUserByEmail(data?.user?.email!);
 
   const product = await getProductById(params.productId);
   return (

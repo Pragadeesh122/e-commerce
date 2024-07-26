@@ -1,8 +1,5 @@
 "use server";
 
-import prisma from "@/app/lib/db";
-import bycrptjs from "bcryptjs";
-import {auth, signIn, signOut} from "@/app/lib/auth";
 import {validateFormData} from "@/app/data/formDataValidation";
 import {
   createCartItem,
@@ -13,6 +10,7 @@ import {
   getUserByEmail,
   getUserByEmailWithCartItemsAndProducts,
   removeCartItem,
+  signInTheUser,
   updateCartItemQuantity,
   updateCartItemQuantityAlreadyExists,
   updateCartItemSize,
@@ -21,25 +19,49 @@ import {
 } from "@/app/lib/supabase/helpers";
 import {revalidatePath} from "next/cache";
 import {createId} from "@paralleldrive/cuid2";
+import {createClient} from "@/app/lib/supabase/server";
+import {redirect} from "next/navigation";
 
-export async function googleSignInAction() {
-  await signIn("google", {redirectTo: "/"});
+// export async function googleSignInAction() {
+//   await signIn("google", {redirectTo: "/"});
+// }
+
+export async function signInWithGoogle() {
+  const supabaseServer = createClient();
+  const {data, error} = await supabaseServer.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: "http://localhost:3000/api/auth/callback",
+    },
+  });
+
+  if (error) {
+    console.log(error);
+  }
+
+  if (data.url) {
+    console.log(data);
+    redirect(data.url);
+  }
 }
 
-export async function githubSignInAction() {
-  await signIn("github", {redirectTo: "/"});
-}
+// export async function githubSignInAction() {
+//   await signIn("github", {redirectTo: "/"});
+// }
 
 export async function signOutAction() {
-  await signOut({redirectTo: "/login"});
+  const supabaseServer = createClient();
+  const {error} = await supabaseServer.auth.signOut();
+  if (!error) {
+    redirect("/login");
+  }
 }
 
 export async function createUser(formData: FormData) {
+  const supabase = createClient();
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
-
-  const hashedPassword = bycrptjs.hashSync(password, 10);
 
   const validation = validateFormData(password, name, email);
 
@@ -47,25 +69,53 @@ export async function createUser(formData: FormData) {
     return {error: validation};
   }
 
-  const userData = {name: name, email: email, password: hashedPassword};
+  const {data, error} = await supabase
+    .from("User")
+    .select()
+    .eq("email", email)
+    .single();
 
-  try {
-    await createUserWithOauth(userData);
-  } catch (error: any) {
-    return {error: "The name or email is already in use"};
+  if (data) {
+    return {error: "User already exists"};
   }
 
-  return {success: "User successfully created"};
+  if (!data) {
+    const userData = {displayName: name, email: email, password: password};
+
+    try {
+      const user = await createUserWithOauth(userData);
+      if (user) {
+        const {error} = await supabase.from("User").insert([
+          {
+            id: createId(),
+            email: email,
+            name: name,
+          },
+        ]);
+        if (error) {
+          console.log("Error creating a user profile");
+          redirect("/auth-error");
+        }
+      }
+      return {verify: "Confirm the verification link sent to the email"};
+    } catch (error: any) {
+      console.log("Error creating user:", error.message);
+      redirect("/auth-error");
+    }
+  }
 }
 
 export async function signInUser(formData: FormData) {
   try {
-    const response = await signIn("credentials", {
+    const userData = {
       email: formData.get("email") as string,
       password: formData.get("password") as string,
-      redirect: false,
-    });
-    return response;
+    };
+    const response = await signInTheUser(userData);
+    if (response) {
+      console.log("Sign-in data:", response);
+      return {success: true};
+    }
   } catch (error: any) {
     return {error: "Invalid Credentials"};
   }
@@ -130,17 +180,15 @@ export async function updateProfile(formData: FormData) {
     userUpdateData.image = imageUrl;
   }
 
-  if (password) {
-    const hashedPassword = bycrptjs.hashSync(password, 10);
-    userUpdateData.password = hashedPassword;
-  }
+  // if (password) {
+  //   const hashedPassword = bycrptjs.hashSync(password, 10);
+  //   userUpdateData.password = hashedPassword;
+  // }
 
   try {
-    const session = await auth();
-    if (!session) {
-      return {error: "You are Unauthorized to update this profile"};
-    }
-    const userEmail = session?.user?.email as string;
+    const supabaseServer = createClient();
+    const {data} = await supabaseServer.auth.getUser();
+    const userEmail = data?.user?.email as string;
     await updateUserProfile(userEmail, userUpdateData);
     revalidatePath("/profile");
     return {success: "Profile updated successfully"};
@@ -160,8 +208,9 @@ export async function addToCart(formData: FormData) {
   }
 
   try {
-    const session = await auth();
-    const alreadyInCart = await getUserByEmail(session?.user?.email!);
+    const supabaseServer = createClient();
+    const {data} = await supabaseServer.auth.getUser();
+    const alreadyInCart = await getUserByEmail(data?.user?.email!);
 
     const cartItem = alreadyInCart?.CartItem?.filter(
       (item) => item.size === size && item.productId === productId
@@ -224,14 +273,20 @@ export async function updateCartItem(formData: FormData) {
 
 export async function createOrder() {
   try {
-    const session = await auth();
-    if (!session) {
+    const supabaseServer = createClient();
+    const session = await supabaseServer.auth.getSession();
+    const {data} = await supabaseServer.auth.getUser();
+    console.log(data);
+    console.log("session:", session);
+    if (!data) {
       throw new Error("You are not authorized to perform this action");
     }
 
     const user = await getUserByEmailWithCartItemsAndProducts(
-      session?.user?.email!
+      data?.user?.email!
     );
+    console.log(user);
+    console.log(data);
 
     if (!user || !user.CartItem.length) {
       throw new Error("No items in the cart");
