@@ -18,6 +18,13 @@ export default function Login() {
   const [error, setError] = useState<string | undefined>();
   const [pending, setPending] = useState<boolean>(false);
 
+  const isLocalhost =
+    typeof window !== "undefined" && window.location.hostname === "localhost";
+  const baseUrl = isLocalhost
+    ? "http://localhost:3000"
+    : "https://elegancehub.vercel.app";
+  const redirectUrl = `${baseUrl}/api/auth/callback`;
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     try {
       event.preventDefault();
@@ -35,6 +42,10 @@ export default function Login() {
     } finally {
       setPending(false);
     }
+  }
+
+  async function handleGoogleSignIn() {
+    await signInWithGoogle(redirectUrl);
   }
 
   return (
@@ -87,7 +98,7 @@ export default function Login() {
         <Divider />
       </div>
       <form>
-        <Button formAction={signInWithGoogle} className='w-full'>
+        <Button formAction={handleGoogleSignIn} className='w-full'>
           Sign in with Google{" "}
           <Image
             className='ml-3'

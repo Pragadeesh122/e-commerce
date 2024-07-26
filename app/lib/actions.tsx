@@ -26,12 +26,12 @@ import {redirect} from "next/navigation";
 //   await signIn("google", {redirectTo: "/"});
 // }
 
-export async function signInWithGoogle() {
+export async function signInWithGoogle(redirectUrl: string) {
   const supabaseServer = createClient();
   const {data, error} = await supabaseServer.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: "http://localhost:3000/api/auth/callback",
+      redirectTo: redirectUrl,
     },
   });
 
@@ -275,6 +275,8 @@ export async function createOrder() {
   try {
     const supabaseServer = createClient();
     const session = await supabaseServer.auth.getSession();
+    const session1 = await supabaseServer.auth.getUser();
+    console.log(session1);
     const {data} = await supabaseServer.auth.getUser();
     console.log(data);
     console.log("session:", session);
