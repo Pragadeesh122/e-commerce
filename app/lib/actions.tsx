@@ -237,9 +237,10 @@ export async function createOrder() {
     if (!user || !user.CartItem.length) {
       throw new Error("No items in the cart");
     }
+    console.log(user.CartItem);
 
     const total = user.CartItem.reduce(
-      (acc, item) => acc + item.quantity * item.product.price,
+      (acc, item) => acc + item.quantity * item.Product.price,
       0
     );
 
@@ -251,7 +252,7 @@ export async function createOrder() {
       orderId: newOrder?.id as string,
       productId: cartItem.productId as string,
       quantity: cartItem.quantity as number,
-      price: cartItem.product.price as number,
+      price: cartItem.Product.price as number,
     }));
 
     await createUserOrderItem(orderItems);
