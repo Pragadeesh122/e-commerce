@@ -341,12 +341,14 @@ export async function createCartItem(cartData: {
 }
 
 export async function removeCartItem(id: string) {
-  const {error} = await supabase.from("CartItem").delete().eq("id", id);
+  const {data, error} = await supabase.from("CartItem").delete().eq("id", id);
 
   if (error) {
     console.error("Error removing cart item:", error.message);
     return null;
   }
+  console.log("Cart item removed", data);
+  return data;
 }
 
 export async function updateCartItemSize(id: string, size: string) {
@@ -370,7 +372,9 @@ export async function updateCartItemQuantity(id: string, quantity: number) {
 export async function createUserOrder(userId: string, total: number) {
   const {data, error} = await supabase
     .from("Order")
-    .insert([{id: createId(), createdAt: Date.now(), userId, total}])
+    .insert([
+      {id: createId(), createdAt: new Date().toISOString(), userId, total},
+    ])
     .select();
 
   if (error) {
@@ -389,10 +393,14 @@ export async function createUserOrderItem(
     price: number;
   }[]
 ) {
-  const {error} = await supabase.from("OrderItem").insert([orderItemData]);
+  const {data, error} = await supabase
+    .from("OrderItem")
+    .insert([orderItemData]);
 
   if (error) {
     console.error("Error creating order item:", error.message);
     return null;
   }
+  console.log("Order item created", data);
+  return data;
 }
