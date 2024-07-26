@@ -225,6 +225,7 @@ export async function updateCartItem(formData: FormData) {
 export async function createOrder() {
   try {
     const session = await auth();
+    console.log("Session:", session);
     if (!session) {
       throw new Error("You are not authorized to perform this action");
     }
