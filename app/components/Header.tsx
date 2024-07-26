@@ -42,7 +42,7 @@ export default function Header({
 }) {
   return (
     <header className='fixed left-0 right-0 top-0 bg-background border-b z-50 '>
-      <div className='mx-auto flex items-center justify-between  gap-10 px-2 md:px-24 py-5'>
+      <div className='mx-auto flex items-center justify-between  gap-10 px-4 md:px-24 py-5'>
         <Link href='/' className='flex items-center gap-2' prefetch={false}>
           <span className='font-bold text-lg'>EleganceHub</span>
         </Link>

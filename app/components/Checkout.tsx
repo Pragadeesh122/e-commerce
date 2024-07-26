@@ -135,7 +135,7 @@ const Checkout = ({amount}: {amount: number}) => {
         <Button
           disabled={!stripe || loading}
           type='submit'
-          className='mt-5 w-full font-semibold text-lg py-4 text-white rounded'>
+          className='mt-5 w-full font-semibold text-md md:text-lg py-4 text-white rounded'>
           {!loading ? `Pay $${amount.toFixed(2)}` : "Processing..."}
         </Button>
       </form>

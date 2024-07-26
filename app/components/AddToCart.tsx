@@ -57,13 +57,15 @@ export default function AddToCart({
   }
 
   return (
-    <div className='flex-1 flex flex-col gap-6'>
-      <h1 className='text-3xl font-bold'>{product?.productName}</h1>
-      <p className='text-gray-600'>Formal Wear</p>
-      <p className='text-xl font-semibold'>{`$${product?.price}`}</p>
-      <p className='text-gray-600'>{product?.description}</p>
-      <div className='mb-4'>
-        <p className='text-gray-600 mb-4'>Quantity:</p>
+    <div className='flex-1 flex flex-col gap-6 px-6 lg:px-0'>
+      <h1 className='text-xl sm:text-3xl font-bold'>{product?.productName}</h1>
+      <p className='text-gray-600 font-semibold'>Formal Wear</p>
+      <p className='text-lg sm:text-xl font-semibold'>{`$${product?.price}`}</p>
+      <p className='text-gray-600 text-md sm:text-lg'>{product?.description}</p>
+      <div className='mb-4 flex gap-6 items-center lg:block'>
+        <p className='text-gray-600 lg:mb-4 text-md font-medium sm:text-md'>
+          Quantity:
+        </p>
         <div className='flex items-center space-x-2'>
           <button
             disabled={productQuantity === 1}
@@ -83,7 +85,7 @@ export default function AddToCart({
         </div>
       </div>
       <div className='mb-4'>
-        <p className='text-gray-600 mb-4'>Available Sizes:</p>
+        <p className='text-gray-600 font-medium mb-4'>Available Sizes:</p>
         <div className='flex space-x-4'>
           {product?.size.map((size) => (
             <SizeButton

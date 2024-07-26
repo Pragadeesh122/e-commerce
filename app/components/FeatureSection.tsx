@@ -41,7 +41,7 @@ export default function FeatureSection({
 
   return (
     <section className='w-full py-10 md:py-12 lg:py-16'>
-      <div className=' grid  gap-4'>
+      <div className=' grid gap-4'>
         <SectionHeader
           heading={heading}
           subHeading={subHeading}

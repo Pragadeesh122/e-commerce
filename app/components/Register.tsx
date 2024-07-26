@@ -82,7 +82,7 @@ export default function Register() {
           <Link
             className='text-gray-800 font-semibold underline ml-2'
             href='/login'>
-            Register
+            Login
           </Link>
         </span>
       </div>

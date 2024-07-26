@@ -53,7 +53,7 @@ export default function ProfileForm({
     <form
       ref={formRef}
       onSubmit={handleSubmit}
-      className='flex flex-col gap-6 px-10 py-4 border-2 min-w-96 rounded-lg'>
+      className='flex flex-col gap-6 px-6 sm:px-10 py-4 border-2 min-w-96 rounded-lg'>
       <h1 className='font-bold'>Profile</h1>
       <div className='flex flex-col gap-2'>
         <Label className='font-semibold' htmlFor='name'>

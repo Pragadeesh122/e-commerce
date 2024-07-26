@@ -213,10 +213,12 @@ export async function updateCartItem(formData: FormData) {
     if (size) {
       console.log("Updating size");
       await updateCartItemSize(cartItemId, size);
+      revalidatePath("/cart");
     }
     if (quantity) {
       console.log("Updating quantity");
       await updateCartItemQuantity(cartItemId, quantity);
+      revalidatePath("/cart");
     }
   } catch (error: any) {
     console.error("Error updating cart item:", error);

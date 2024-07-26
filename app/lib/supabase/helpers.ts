@@ -359,7 +359,11 @@ export async function removeCartItemByUserId(userId: string) {
 }
 
 export async function updateCartItemSize(id: string, size: string) {
-  const {error} = await supabase.from("CartItem").update(size).eq("id", id);
+  console.log(size);
+  const {error} = await supabase
+    .from("CartItem")
+    .update({size: size})
+    .eq("id", id);
 
   if (error) {
     console.error("Error updating cart item:", error.message);
@@ -368,7 +372,11 @@ export async function updateCartItemSize(id: string, size: string) {
 }
 
 export async function updateCartItemQuantity(id: string, quantity: number) {
-  const {error} = await supabase.from("CartItem").update(quantity).eq("id", id);
+  console.log(quantity);
+  const {error} = await supabase
+    .from("CartItem")
+    .update({quantity: quantity})
+    .eq("id", id);
 
   if (error) {
     console.error("Error updating cart item:", error.message);

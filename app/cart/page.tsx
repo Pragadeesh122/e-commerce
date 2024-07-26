@@ -36,7 +36,7 @@ export default async function Page() {
                   <h2 className='text-md sm:text-lg font-semibold'>
                     {cartItem.Product.productName}
                   </h2>
-                  <p className='text-gray-500'>
+                  <p className='text-gray-500 mt-2 font-semibold'>
                     Price: ${cartItem.Product.price}
                   </p>
                   <div className='flex items-center mt-2 space-x-4'>
@@ -49,7 +49,7 @@ export default async function Page() {
           ))}
         </div>
         <Link href='/checkout'>
-          <div className='mt-6'>
+          <div className='mt-12'>
             <Button
               type='submit'
               className='w-full py-3 text-md sm:text-lg font-semibold'>

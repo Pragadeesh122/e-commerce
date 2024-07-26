@@ -12,7 +12,7 @@ export default async function Page() {
     <div className='flex flex-col'>
       <Header user={user} />
       <main className='flex-1 px-14 bg-muted'>
-        <section className='w-full py-10 md:pt-20'>
+        <section className='w-full py-10 pt-20'>
           <FeatureSection
             images={womenWears}
             heading="Chic and Elegant Women's Wear"

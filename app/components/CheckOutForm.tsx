@@ -16,9 +16,9 @@ export default function CheckOutForm({cartItems}: {cartItems: any}) {
   );
 
   return (
-    <div className='flex flex-col gap-12 border-2 rounded-md'>
+    <div className='flex flex-col gap-12 border-2 mt-[900px] md:mt-0 rounded-md'>
       <h1 className='font-bold text-2xl text-center mt-4'>Checkout Form</h1>
-      <div className='px-12 py-12 rounded-md  flex gap-16'>
+      <div className='px-4 py-4 md:px-12 md:py-12 rounded-md flex flex-col md:flex-row gap-16'>
         <div>
           <h1 className='font-bold text-xl mb-4'>Order Summary:</h1>
           {cartItems.map((item: any) => (
