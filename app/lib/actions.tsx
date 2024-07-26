@@ -246,6 +246,8 @@ export async function createOrder() {
 
     const newOrder = await createUserOrder(user.id, total);
 
+    console.log("New Order:", newOrder);
+
     // Step 2: Create the OrderItems
     const orderItems = user.CartItem.map((cartItem) => ({
       id: createId() as string,
@@ -255,10 +257,11 @@ export async function createOrder() {
       price: cartItem.Product.price as number,
     }));
 
-    await createUserOrderItem(orderItems);
+    console.log("Order Items:", orderItems);
 
-    // Clear the cart
-    await removeCartItem(user.id);
+    const orderItem = await createUserOrderItem(orderItems);
+    const removedItems = await removeCartItem(user.id);
+    revalidatePath("/orders");
     return {success: true};
   } catch (error: any) {
     console.error("Error creating order:", error);
