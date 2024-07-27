@@ -225,6 +225,7 @@ export async function createUserWithOauth(userData: {
   image?: string;
   password?: string;
 }) {
+  console.log(userData);
   const {data, error} = await supabase
     .from("User")
     .insert([{...userData, id: createId()}]);

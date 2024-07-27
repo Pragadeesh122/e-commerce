@@ -49,9 +49,11 @@ const authConfig = {
     },
     async signIn({user}: {user: any}) {
       try {
-        const existingGuest = getUser(user.email as string);
+        const existingGuest = await getUser(user.email as string);
+        console.log(user);
 
         let authUser;
+        console.log("Creating user with oauth:", existingGuest);
 
         if (!existingGuest) {
           authUser = {
@@ -59,6 +61,7 @@ const authConfig = {
             name: user.name as string,
             image: user.image as string,
           };
+
           await createUserWithOauth(authUser);
         }
 

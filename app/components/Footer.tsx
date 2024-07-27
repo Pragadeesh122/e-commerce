@@ -84,7 +84,7 @@ export default function Footer() {
         </div>
       </div>
       <div className='container mx-auto mt-8 border-t border-gray-700 pt-4 text-center text-sm text-gray-500'>
-        &copy; 2023 EleganceHub. All rights reserved.
+        &copy; {new Date().getFullYear()} EleganceHub. All rights reserved.
       </div>
     </footer>
   );
