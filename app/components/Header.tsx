@@ -205,7 +205,10 @@ export default function Header({
 
                 <div className='absolute h-5 w-5 border-2 border-slate-900  rounded-full top-[-7px] left-6 '>
                   <span className='flex text-xs items-start justify-center top-20'>
-                    {user?.CartItem?.length}
+                    {user?.CartItem?.reduce(
+                      (acc, cur) => acc + cur.quantity,
+                      0
+                    )}
                   </span>
                 </div>
               </Link>
