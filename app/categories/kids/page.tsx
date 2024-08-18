@@ -3,15 +3,22 @@ import Header from "@/app/components/Header";
 import {auth} from "@/app/lib/auth";
 import {getKidsWear, getUserByEmail} from "@/app/lib/supabase/helpers";
 
-export default async function Page() {
+export default async function Page({searchParams}: any) {
   const session = await auth();
   const user = await getUserByEmail(session?.user?.email!);
 
-  const kidsWear = await getKidsWear();
+  let kidsWear = await getKidsWear();
+  if (Object.keys(searchParams).length !== 0) {
+    kidsWear = kidsWear.filter((product) => {
+      return product.productName
+        .toLowerCase()
+        .includes(searchParams["search"]?.toLowerCase());
+    });
+  }
 
   return (
     <div className='flex flex-col'>
-      <Header user={user} />
+      <Header user={user} products={kidsWear} />
       <main className='flex-1 px-14 bg-muted'>
         <section className='w-full py-10 pt-32'>
           <FeatureSection

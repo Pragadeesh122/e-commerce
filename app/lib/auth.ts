@@ -50,10 +50,8 @@ const authConfig = {
     async signIn({user}: {user: any}) {
       try {
         const existingGuest = await getUser(user.email as string);
-        console.log(user);
 
         let authUser;
-        console.log("Creating user with oauth:", existingGuest);
 
         if (!existingGuest) {
           authUser = {

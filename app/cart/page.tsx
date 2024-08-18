@@ -14,11 +14,17 @@ export default async function Page() {
   );
 
   const cartItems = user?.CartItem || [];
+
   return (
     <div className='min-h-screen p-4 bg-gray-100 pt-24 sm:pt-32'>
       <Header user={user} render={false} />
       <div className='max-w-3xl mx-auto'>
-        <h1 className=' text-2xl sm:text-3xl font-bold mb-6'>Shopping Cart</h1>
+        {cartItems.length !== 0 && (
+          <h1 className=' text-2xl sm:text-3xl font-bold mb-6'>
+            Shopping Cart
+          </h1>
+        )}
+
         <div className='space-y-8'>
           {cartItems.map((cartItem) => (
             <div
@@ -48,15 +54,28 @@ export default async function Page() {
             </div>
           ))}
         </div>
-        <Link href='/checkout'>
-          <div className='mt-12'>
-            <Button
-              type='submit'
-              className='w-full py-3 text-md sm:text-lg font-semibold'>
-              Checkout
-            </Button>
+        {cartItems.length === 0 && (
+          <div className='flex flex-col items-center  py-4 px-6 gap-6'>
+            <span className='text-3xl text-center font-semibold'>
+              Your cart is empty
+            </span>
+
+            <Link className='w-full' href='/'>
+              <Button className='text-md w-full'>Start Shopping</Button>
+            </Link>
           </div>
-        </Link>
+        )}
+        {cartItems.length !== 0 && (
+          <Link href='/checkout'>
+            <div className='mt-12'>
+              <Button
+                type='submit'
+                className='w-full py-3 text-md sm:text-lg font-semibold'>
+                Checkout
+              </Button>
+            </div>
+          </Link>
+        )}
       </div>
     </div>
   );

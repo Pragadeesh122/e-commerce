@@ -19,16 +19,24 @@ import {
   DropdownMenuTrigger,
 } from "@/app/components/ui/dropdown-menu";
 import {Input} from "@/app/components/ui/input";
-import {ShoppingCartIcon} from "@heroicons/react/24/outline";
+import {
+  ShoppingCartIcon,
+  MagnifyingGlassIcon,
+} from "@heroicons/react/24/outline";
 import {signOutAction} from "@/app/lib/actions";
 
 import Image from "next/image";
 import MobileNav from "./MobileNav";
+import {useState} from "react";
+import {useDebounce} from "../hooks/useDebouncer";
+import {cn} from "../lib/utils";
+import {useRouter} from "next/navigation";
 
 export default function Header({
   userAccount = true,
   render = true,
   user,
+  products,
 }: {
   render?: boolean | null;
   userAccount?: boolean | null;
@@ -39,7 +47,25 @@ export default function Header({
     image: string | null;
     CartItem: {id: string; quantity: number; productId: string}[];
   } | null;
+  products?: any[];
 }) {
+  const [searchProduct, setSearchProduct] = useState<string>("");
+  const debouncedSearchProduct = useDebounce(searchProduct);
+  const searchedProducts = products?.filter((product) => {
+    if (!debouncedSearchProduct.trim()) {
+      return false;
+    }
+    const normalizedProductName = product.productName
+      .toLowerCase()
+      .replace(/\s+/g, "");
+    return normalizedProductName.includes(debouncedSearchProduct);
+  });
+  const router = useRouter();
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    router.push(`?search=${searchProduct}`);
+  }
+
   return (
     <header className='fixed left-0 right-0 top-0 bg-background border-b z-50 '>
       <div className='mx-auto flex items-center justify-between  gap-10 px-4 md:px-24 py-5'>
@@ -115,19 +141,6 @@ export default function Header({
                     <div className='grid w-[600px] p-4 gap-4'>
                       <NavigationMenuLink asChild>
                         <Link
-                          href='/collections/summerEssentials'
-                          className='group grid h-auto w-full items-center justify-start gap-2 rounded-md bg-background p-4 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50'
-                          prefetch={false}>
-                          <div className='text-sm font-medium leading-none group-hover:underline'>
-                            Summer Essentials
-                          </div>
-                          <div className='line-clamp-2 text-sm leading-snug text-muted-foreground'>
-                            Lightweight, breathable, and stylish summer wear.
-                          </div>
-                        </Link>
-                      </NavigationMenuLink>
-                      <NavigationMenuLink asChild>
-                        <Link
                           href='/collections/formalWear'
                           className='group grid h-auto w-full items-center justify-start gap-2 rounded-md bg-background p-4 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50'
                           prefetch={false}>
@@ -190,11 +203,48 @@ export default function Header({
         {render && (
           <div className='hidden sm:block relative flex-1 max-w-sm'>
             <div className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
-            <Input
-              type='search'
-              placeholder='Search products...'
-              className='w-full rounded-lg bg-background pl-8'
-            />
+            <form onSubmit={handleSubmit} className='flex relative'>
+              <input
+                type='search'
+                placeholder='Search products...'
+                className={cn(
+                  "w-full rounded-t-lg bg-background border-2 border-gray-600 py-2 px-8 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-opacity-50",
+                  searchedProducts?.length === 0 && "rounded-lg"
+                )}
+                onChange={(e) => setSearchProduct(e.target.value)}
+              />
+              <button type='submit' className='absolute right-2 top-3'>
+                <MagnifyingGlassIcon className='h-5 w-5 font-bold' />
+              </button>
+            </form>
+            {searchedProducts?.length !== 0 && (
+              <div className='flex flex-col py-4 px-2 border-gray-600 border-x-2 border-b-2  absolute bg-background rounded-b-md  w-full '>
+                {searchedProducts?.map((product: any) => (
+                  <Link
+                    className='px-2  border-2 border-gray-400 mb-2 rounded-md hover:bg-muted'
+                    href={`/products/${product.id}`}
+                    key={product.id}
+                    prefetch={false}>
+                    <div className='flex items-center gap-4 py-2'>
+                      <div className=''>
+                        <Image
+                          src={product.displayImage}
+                          width='44'
+                          height='44'
+                          className='rounded-md'
+                          alt={product.productName}
+                        />
+                      </div>
+                      <div className='flex flex-col'>
+                        <span className='text-md font-semibold'>
+                          {product.productName}
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         )}
         <div className='flex gap-4 justify-center items-center'>
