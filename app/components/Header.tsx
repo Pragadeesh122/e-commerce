@@ -64,6 +64,7 @@ export default function Header({
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     router.push(`?search=${searchProduct}`);
+    setSearchProduct("");
   }
 
   return (
@@ -218,7 +219,7 @@ export default function Header({
               </button>
             </form>
             {searchedProducts?.length !== 0 && (
-              <div className='flex flex-col py-4 px-2 border-gray-600 border-x-2 border-b-2  absolute bg-background rounded-b-md  w-full '>
+              <div className='flex flex-col py-4 px-2 border-gray-600 border-x-2 border-b-2  absolute bg-background rounded-b-md max-h-96 overflow-y-auto  w-full '>
                 {searchedProducts?.map((product: any) => (
                   <Link
                     className='px-2  border-2 border-gray-400 mb-2 rounded-md hover:bg-muted'
