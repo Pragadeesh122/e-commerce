@@ -1,9 +1,15 @@
-import Spinner from "@/app/components/Spinner";
+// import Spinner from "@/app/components/Spinner";
+
+import HomePageSkeleton from "./components/HomePageSkeleton";
+
+// export default function Loading() {
+//   return (
+//     <div className='flex items-center justify-center h-screen'>
+//       <Spinner />;
+//     </div>
+//   );
+// }
 
 export default function Loading() {
-  return (
-    <div className='flex items-center justify-center h-screen'>
-      <Spinner />;
-    </div>
-  );
+  return <HomePageSkeleton />;
 }
