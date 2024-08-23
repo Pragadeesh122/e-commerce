@@ -1,10 +1,10 @@
 // app/components/ui/ProfilePageSkeleton.tsx
-import HeaderSkeleton from "./HeaderSkeleton";
+import HeaderSkeletonWithoutSearch from "./HeaderWithoutSearchSkeleton";
 
 export default function ProfilePageSkeleton() {
   return (
     <div className='flex items-center justify-center h-screen'>
-      <HeaderSkeleton />
+      <HeaderSkeletonWithoutSearch />
       <div className='flex flex-col gap-6 px-6 sm:px-10 py-4 border-2 min-w-96 rounded-lg'>
         <div className='h-6 w-20 bg-gray-200 rounded'></div>
         {["Name", "Email", "New Password", "Re-enter Password"].map(

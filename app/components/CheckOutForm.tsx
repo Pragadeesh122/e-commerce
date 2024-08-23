@@ -16,7 +16,7 @@ export default function CheckOutForm({cartItems}: {cartItems: any}) {
   );
 
   return (
-    <div className='flex flex-col gap-12 border-2 mt-[700px] md:mt-12 rounded-md'>
+    <div className='flex flex-col gap-12 border-2 mt-[700px] md:mt-24 rounded-md'>
       <h1 className='font-bold text-2xl text-center mt-4'>Checkout Form</h1>
       <div className='px-4 py-4 md:px-12 md:py-12 rounded-md flex flex-col md:flex-row gap-16'>
         <div className='flex-1 overflow-auto px-6 max-h-[60vh]'>

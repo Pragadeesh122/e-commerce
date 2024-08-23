@@ -1,4 +1,4 @@
-import CartPageSkeleton from "../components/CartSkeleton";
+import CartPageSkeleton from "../components/Skeleton/CartSkeleton";
 
 export default function Loading() {
   return <CartPageSkeleton />;

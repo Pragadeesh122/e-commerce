@@ -9,8 +9,8 @@
 // }
 
 // app/kids/loading.tsx
-import HeaderSkeleton from "@/app/components/HeaderSkeleton";
-import FeatureSectionSkeleton from "@/app/components/FeatureSectionSkeleton";
+import HeaderSkeleton from "@/app/components/Skeleton/HeaderSkeleton";
+import FeatureSectionSkeleton from "@/app/components/Skeleton/FeatureSectionSkeleton";
 
 export default function Loading() {
   return (

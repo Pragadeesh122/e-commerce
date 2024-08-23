@@ -1,10 +1,10 @@
 // app/components/ui/CartPageSkeleton.tsx
-import HeaderSkeleton from "./HeaderSkeleton";
+import HeaderSkeletonWithoutSearch from "./HeaderWithoutSearchSkeleton";
 
 export default function CartPageSkeleton() {
   return (
     <div className='min-h-screen p-4 bg-gray-100 pt-24 sm:pt-32'>
-      <HeaderSkeleton />
+      <HeaderSkeletonWithoutSearch />
       <div className='max-w-3xl mx-auto'>
         <div className='h-8 w-48 bg-gray-200 rounded mb-6'></div>
         <div className='space-y-8'>

@@ -1,10 +1,11 @@
 // app/components/ui/OrdersPageSkeleton.tsx
 import HeaderSkeleton from "./HeaderSkeleton";
+import HeaderSkeletonWithoutSearch from "@/app/components/Skeleton/HeaderWithoutSearchSkeleton";
 
 export default function OrdersPageSkeleton() {
   return (
     <div className='min-h-screen flex flex-col pt-32 pb-6 gap-4 items-center justify-center bg-muted'>
-      <HeaderSkeleton />
+      <HeaderSkeletonWithoutSearch />
       <main className='w-full max-w-4xl mx-auto'>
         <div className='h-10 w-48 bg-gray-200 rounded mb-8 mx-auto'></div>
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>

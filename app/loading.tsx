@@ -1,6 +1,6 @@
 // import Spinner from "@/app/components/Spinner";
 
-import HomePageSkeleton from "./components/HomePageSkeleton";
+import HomePageSkeleton from "./components/Skeleton/HomePageSkeleton";
 
 // export default function Loading() {
 //   return (
