@@ -26,6 +26,9 @@ const authConfig = {
         try {
           const user = await getUser(credentials.email as string);
           if (user) {
+            if (!user.verified) {
+              throw new Error("Please verify your email before logging in");
+            }
             const isMatch = await bycrptjs.compare(
               credentials.password as string,
               user.password!
@@ -58,6 +61,7 @@ const authConfig = {
             email: user.email as string,
             name: user.name as string,
             image: user.image as string,
+            verified: true as boolean,
           };
 
           await createUserWithOauth(authUser);

@@ -1,95 +1,83 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider          = "postgresql"
-  url               = env("DATABASE_URL")
-  directUrl         = env("DIRECT_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Product {
-  id          String  @id @default(cuid())
-  productName String  @unique
-  wear String 
-  size        String[]
-  price       Float
-  description String
+  id           String      @id @default(cuid())
+  productName  String      @unique
+  size         String[]
+  price        Float
+  description  String
   displayImage String
-  quantity    Int @default(1)
-
-  images     String[]
-
-  isNew       Boolean @default(false)
-  isTrending  Boolean @default(false)
-  isPopular   Boolean @default(false)
-  isTopRated  Boolean @default(false)
-  isOnSale    Boolean @default(false)
-  
-  isMens      Boolean @default(false)
-  isKids      Boolean @default(false)
-  isWomen     Boolean @default(false)
-  
-  CartItem    CartItem[]
-  Wishlist    Wishlist[]
-  OrderItem   OrderItem[]
+  isNew        Boolean     @default(false)
+  isTrending   Boolean     @default(false)
+  isPopular    Boolean     @default(false)
+  isTopRated   Boolean     @default(false)
+  isOnSale     Boolean     @default(false)
+  isMens       Boolean     @default(false)
+  isKids       Boolean     @default(false)
+  isWomen      Boolean     @default(false)
+  images       String[]
+  wear         String
+  quantity     Int         @default(1)
+  CartItem     CartItem[]
+  OrderItem    OrderItem[]
+  Wishlist     Wishlist[]
 }
 
 model User {
-  id        String @id @default(cuid())
-  email     String @unique
+  id        String     @id @default(cuid())
+  email     String     @unique
   password  String?
-  name      String 
+  name      String
   image     String?
+  verified  Boolean    @default(false)
+  verificationToken String?
 
   cartItems CartItem[]
-  wishlist  Wishlist[]
   orders    Order[]
+  wishlist  Wishlist[]
 }
 
 model CartItem {
-  id        String   @id @default(cuid())
+  id        String  @id @default(cuid())
   quantity  Int
-  size     String
   productId String
   userId    String
-
+  size      String
   product   Product @relation(fields: [productId], references: [id])
   user      User    @relation(fields: [userId], references: [id])
 }
 
 model Wishlist {
-  id        String   @id @default(cuid())
+  id        String  @id @default(cuid())
   productId String
   userId    String
-
   product   Product @relation(fields: [productId], references: [id])
   user      User    @relation(fields: [userId], references: [id])
 }
 
 model Order {
-  id        String      @id @default(cuid())
-  userId    String
-  createdAt DateTime    @default(now())
-  total     Float
-
-  user      User        @relation(fields: [userId], references: [id])
+  id         String      @id @default(cuid())
+  userId     String
+  createdAt  DateTime    @default(now())
+  total      Float
+  user       User        @relation(fields: [userId], references: [id])
   orderItems OrderItem[]
 }
 
 model OrderItem {
-  id        String   @id @default(cuid())
+  id        String  @id @default(cuid())
   productId String
   orderId   String  @default(cuid())
   quantity  Int
   price     Float
-
-  product   Product @relation(fields: [productId], references: [id])
   order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
 }

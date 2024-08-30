@@ -224,6 +224,8 @@ export async function createUserWithOauth(userData: {
   name: string;
   image?: string;
   password?: string;
+  verified?: boolean;
+  verificationToken?: string;
 }) {
   console.log(userData);
   const {data, error} = await supabase
@@ -236,6 +238,43 @@ export async function createUserWithOauth(userData: {
   }
 
   return data;
+}
+
+export async function getUserByVerificationToken(token: string) {
+  const {data, error} = await supabase
+    .from("User")
+    .select("*")
+    .eq("verificationToken", token)
+    .single();
+
+  if (error) {
+    console.error("Error fetching user by verification token:", error);
+    return null;
+  }
+
+  return data;
+}
+
+export async function updateUserVerificationStatus(
+  userId: string,
+  verified: boolean
+) {
+  console.log(`Updating verification status for user ${userId} to ${verified}`);
+  try {
+    const {error} = await supabase
+      .from("User")
+      .update({verified: verified, verificationToken: null})
+      .eq("id", userId);
+
+    if (error) {
+      console.error("Error updating user verification status:", error);
+      throw error;
+    }
+    console.log(`Verification status updated successfully for user ${userId}`);
+  } catch (error) {
+    console.error("Caught error in updateUserVerificationStatus:", error);
+    throw error; // Re-throw the error to be caught in the calling function
+  }
 }
 
 export async function getUserByEmailWithOrder(email: string) {

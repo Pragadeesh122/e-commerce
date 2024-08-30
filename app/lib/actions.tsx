@@ -1,6 +1,5 @@
 "use server";
 
-import prisma from "@/app/lib/db";
 import bycrptjs from "bcryptjs";
 import {auth, signIn, signOut} from "@/app/lib/auth";
 import {validateFormData} from "@/app/data/formDataValidation";
@@ -12,17 +11,20 @@ import {
   createUserWithOauth,
   getUserByEmail,
   getUserByEmailWithCartItemsAndProducts,
+  getUserByVerificationToken,
   removeCartItem,
   removeCartItemByUserId,
   updateCartItemQuantity,
   updateCartItemQuantityAlreadyExists,
   updateCartItemSize,
   updateUserProfile,
+  updateUserVerificationStatus,
   uploadImage,
 } from "@/app/lib/supabase/helpers";
 import {revalidatePath} from "next/cache";
 import {createId} from "@paralleldrive/cuid2";
-import {create} from "domain";
+import nodemailer from "nodemailer";
+import {redirect} from "next/navigation";
 
 export async function googleSignInAction() {
   await signIn("google", {redirectTo: "/"});
@@ -34,6 +36,111 @@ export async function githubSignInAction() {
 
 export async function signOutAction() {
   await signOut({redirectTo: "/login"});
+}
+
+async function sendVerificationEmail(email: string, token: string) {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+      user: process.env.USER_GMAIL,
+      pass: process.env.USER_PASS,
+    },
+  });
+
+  const verificationLink = `${process.env.NEXTAUTH_URL}/verify-email?token=${token}`;
+
+  await transporter.sendMail({
+    from: process.env.USER_GMAIL,
+    to: email,
+    subject: "Verify Your Email Address for EleganceHub",
+    html: `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Verify Your Email</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          line-height: 1.6;
+          color: #333;
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 20px;
+        }
+        .container {
+          background-color: #f9f9f9;
+          border: 1px solid #ddd;
+          border-radius: 5px;
+          padding: 20px;
+        }
+        h1 {
+          color: #4a4a4a;
+          text-align: center;
+        }
+        .btn {
+          display: inline-block;
+          background-color: #3498db;
+          color: #ffffff;
+          text-decoration: none;
+          padding: 10px 20px;
+          border-radius: 5px;
+          margin-top: 20px;
+        }
+        .footer {
+          margin-top: 20px;
+          text-align: center;
+          font-size: 0.8em;
+          color: #888;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h1>Welcome to EleganceHub!</h1>
+        <p>Thank you for registering with us. To complete your registration and activate your account, please verify your email address by clicking the button below:</p>
+        <p style="text-align: center;">
+          <a href="${verificationLink}" class="btn">Verify Email Address</a>
+        </p>
+        <p>If the button above doesn't work, you can also copy and paste the following link into your browser:</p>
+        <p>${verificationLink}</p>
+        <p>This link will expire in 24 hours for security reasons. If you didn't request this verification, please ignore this email.</p>
+      </div>
+      <div class="footer">
+        <p>This is an automated message, please do not reply to this email. If you need assistance, please contact our support team.</p>
+        <p>&copy; ${new Date().getFullYear()} EleganceHub. All rights reserved.</p>
+      </div>
+    </body>
+    </html>
+  `,
+  });
+}
+
+export async function verifyEmail(token: string) {
+  try {
+    const user = await getUserByVerificationToken(token);
+    if (!user) {
+      return redirect("/login?error=Invalid or expired verification token");
+    }
+
+    await updateUserVerificationStatus(user.id, true);
+
+    return redirect(
+      "/login?success=Email verified successfully. You can now log in."
+    );
+  } catch (error) {
+    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
+      throw error;
+    }
+
+    return redirect(
+      "/login?error=An error occurred while verifying your email"
+    );
+  }
 }
 
 export async function createUser(formData: FormData) {
@@ -49,15 +156,27 @@ export async function createUser(formData: FormData) {
     return {error: validation};
   }
 
-  const userData = {name: name, email: email, password: hashedPassword};
+  const verificationToken = crypto.randomUUID();
+
+  const userData = {
+    name: name,
+    email: email,
+    password: hashedPassword,
+    verificationToken: verificationToken,
+    verified: false,
+  };
 
   try {
     await createUserWithOauth(userData);
+    await sendVerificationEmail(email, verificationToken);
   } catch (error: any) {
     return {error: "The name or email is already in use"};
   }
 
-  return {success: "User successfully created"};
+  return {
+    success:
+      "User successfully created. Please check your email to verify your account.",
+  };
 }
 
 export async function signInUser(formData: FormData) {

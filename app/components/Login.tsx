@@ -12,15 +12,23 @@ import {
   signInUser,
 } from "@/app/lib/actions";
 import Link from "next/link";
-import {useRouter, usePathname} from "next/navigation";
-import {useEffect, useState} from "react";
+import {useRouter, useSearchParams} from "next/navigation";
+import {useState, useEffect} from "react";
 import SubmitButton from "./SubmitButton";
 
 export default function Login() {
-  const pathName = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [error, setError] = useState<string | undefined>();
+  const [success, setSuccess] = useState<string | undefined>();
   const [pending, setPending] = useState<boolean>(false);
+
+  useEffect(() => {
+    const urlError = searchParams.get("error");
+    const urlSuccess = searchParams.get("success");
+    if (urlError) setError(urlError);
+    if (urlSuccess) setSuccess(urlSuccess);
+  }, [searchParams]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     try {
@@ -30,38 +38,41 @@ export default function Login() {
       const response = await signInUser(form);
       if (response.error) {
         setError(response.error);
+        setSuccess(undefined);
       } else {
+        setError(undefined);
         router.push("/");
       }
     } catch (error) {
       console.log(error);
+      setError("An unexpected error occurred");
+    } finally {
       setPending(false);
     }
   }
 
-  useEffect(() => {
-    if (pending && pathName === "/") setPending(false);
-  }, [pending, pathName]);
   return (
-    <div className=' flex flex-col gap-6 px-6 py-8 border-gray-400 border-2 rounded-md'>
+    <div className='flex flex-col gap-6 px-6 py-8 border-gray-400 border-2 rounded-md'>
       <h1 className='text-center text-xl font-semibold'>Login</h1>
       <form onSubmit={handleSubmit} className='flex flex-col gap-6'>
-        <div className='flex flex-col gap-2 '>
+        <div className='flex flex-col gap-2'>
           <Input
             className='w-72'
             id='email'
             name='email'
             type='email'
             placeholder='Email'
+            required
           />
         </div>
-        <div className='flex flex-col gap-2 '>
+        <div className='flex flex-col gap-2'>
           <Input
             className='w-72'
             id='password'
             name='password'
             type='password'
             placeholder='Password'
+            required
           />
         </div>
         {error && (
@@ -69,9 +80,14 @@ export default function Login() {
             <span className='text-red-500'>{error}</span>
           </div>
         )}
+        {success && (
+          <div className='text-sm ml-2'>
+            <span className='text-green-500'>{success}</span>
+          </div>
+        )}
         <div className='mt-[-10px] ml-2'>
           <span className='text-sm font-medium'>
-            Don&apos;t you have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link
               className='text-gray-800 font-semibold underline ml-1'
               href='/register'>
@@ -83,7 +99,7 @@ export default function Login() {
           <SubmitButton
             pending={pending}
             label='Login'
-            pendingLabel='Loggin in....'
+            pendingLabel='Logging in...'
             className='w-full rounded-md'
           />
         </div>
@@ -99,7 +115,8 @@ export default function Login() {
             src={google}
             width={24}
             height={24}
-            alt='google_icon'></Image>
+            alt='google_icon'
+          />
         </Button>
       </form>
       <form>
@@ -110,7 +127,8 @@ export default function Login() {
             src={github}
             width={24}
             height={24}
-            alt='github_icon'></Image>
+            alt='github_icon'
+          />
         </Button>
       </form>
     </div>
