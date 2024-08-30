@@ -227,7 +227,6 @@ export async function createUserWithOauth(userData: {
   verified?: boolean;
   verificationToken?: string;
 }) {
-  console.log(userData);
   const {data, error} = await supabase
     .from("User")
     .insert([{...userData, id: createId()}]);

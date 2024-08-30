@@ -167,9 +167,11 @@ export async function createUser(formData: FormData) {
   };
 
   try {
+    console.log("Creating user with OAuth");
     await createUserWithOauth(userData);
     await sendVerificationEmail(email, verificationToken);
   } catch (error: any) {
+    console.log("Error creating user:", error.message);
     return {error: "The name or email is already in use"};
   }
 
