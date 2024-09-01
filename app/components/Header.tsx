@@ -284,8 +284,10 @@ export default function Header({
                   <Button
                     variant='ghost'
                     size='icon'
-                    className='rounded-full border w-8 h-8'>
-                    <div className='h-6 w-6 '></div>
+                    className='rounded-full border w-8 h-8 bg-gray-500 hover:bg-gray-300'>
+                    <div className='h-6 w-6 '>
+                      {user?.name.charAt(0).toUpperCase()}
+                    </div>
                   </Button>
                 )}
               </DropdownMenuTrigger>

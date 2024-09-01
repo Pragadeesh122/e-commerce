@@ -13,7 +13,7 @@ import {
 } from "@/app/lib/actions";
 import Link from "next/link";
 import {useRouter, useSearchParams} from "next/navigation";
-import {useState, useEffect} from "react";
+import {useState, useEffect, useCallback} from "react";
 import SubmitButton from "./SubmitButton";
 
 export default function Login() {
@@ -21,7 +21,7 @@ export default function Login() {
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
-  const [pending, setPending] = useState<boolean>(false);
+  const [pending, setPending] = useState(false);
 
   useEffect(() => {
     const urlError = searchParams.get("error");
@@ -31,22 +31,22 @@ export default function Login() {
   }, [searchParams]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setPending(true);
+    const form = new FormData(event.currentTarget);
+
     try {
-      event.preventDefault();
-      setPending(true);
-      const form = new FormData(event.currentTarget);
       const response = await signInUser(form);
       if (response.error) {
         setError(response.error);
         setSuccess(undefined);
+        setPending(false);
       } else {
-        setError(undefined);
         router.push("/");
       }
     } catch (error) {
-      console.log(error);
+      console.error("Login error:", error);
       setError("An unexpected error occurred");
-    } finally {
       setPending(false);
     }
   }
