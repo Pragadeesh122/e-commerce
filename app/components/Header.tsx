@@ -120,19 +120,6 @@ export default function Header({
                           </div>
                         </Link>
                       </NavigationMenuLink>
-                      <NavigationMenuLink asChild>
-                        <Link
-                          href='#'
-                          className='group grid h-auto w-full items-center justify-start gap-2 rounded-md bg-background p-4 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50'
-                          prefetch={false}>
-                          <div className='text-sm font-medium leading-none group-hover:underline'>
-                            Accessories
-                          </div>
-                          <div className='line-clamp-2 text-sm leading-snug text-muted-foreground'>
-                            Bags, Shoes, Jewelry, Watches, Sunglasses
-                          </div>
-                        </Link>
-                      </NavigationMenuLink>
                     </div>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
@@ -284,7 +271,7 @@ export default function Header({
                   <Button
                     variant='ghost'
                     size='icon'
-                    className='rounded-full border w-8 h-8 bg-gray-500 hover:bg-gray-300'>
+                    className='rounded-full border w-8 h-8 bg-gray-300 hover:bg-gray-200 focus-visible:ring-0'>
                     <div className='h-6 w-6 '>
                       {user?.name.charAt(0).toUpperCase()}
                     </div>

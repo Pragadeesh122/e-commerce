@@ -8,7 +8,7 @@ export default async function Page() {
   const user = await getUserByEmail(session?.user?.email!);
 
   return (
-    <div className='flex items-center justify-center h-screen'>
+    <div className='flex items-center justify-center h-screen bg-background'>
       <Header user={user} userAccount={false} render={false} />
       <ProfileForm user={user} />
     </div>
