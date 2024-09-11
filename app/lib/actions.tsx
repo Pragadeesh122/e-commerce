@@ -21,7 +21,7 @@ import {
   updateUserVerificationStatus,
   uploadImage,
 } from "@/app/lib/supabase/helpers";
-import {revalidatePath} from "next/cache";
+import {revalidatePath, revalidateTag} from "next/cache";
 import {createId} from "@paralleldrive/cuid2";
 import nodemailer from "nodemailer";
 import {redirect} from "next/navigation";
@@ -284,6 +284,11 @@ export async function addToCart(formData: FormData) {
 
   try {
     const session = await auth();
+
+    if (!session) {
+      return {error: "You are not authorized to perform this action"};
+    }
+
     const alreadyInCart = await getUserByEmail(session?.user?.email!);
 
     const cartItem = alreadyInCart?.CartItem?.filter(
@@ -305,7 +310,7 @@ export async function addToCart(formData: FormData) {
         size,
       };
       await createCartItem(cartData);
-
+      // revalidateTag("user-by-email");
       revalidatePath("/products/[productId]", "page");
     }
   } catch (error: any) {

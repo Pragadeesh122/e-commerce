@@ -51,7 +51,6 @@ export default function AddToCart({
       if (res?.error) {
         setResponse(res);
       } else {
-        // Add a slight delay before setting pending to false
         setTimeout(() => setPending(false), 1000);
         return;
       }

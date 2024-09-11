@@ -13,6 +13,7 @@ export default function CartRemoveButton({cartId}: {cartId: string}) {
       event.preventDefault();
       const formData = new FormData(event.currentTarget);
       await removeFromCart(formData);
+      await new Promise((resolve)=> setTimeout(()=> (resolve),500))
     } finally {
       setPending(false);
     }

@@ -70,7 +70,7 @@ export default function Header({
   return (
     <header className='fixed left-0 right-0 top-0 bg-background border-b z-50 '>
       <div className='mx-auto flex items-center justify-between  gap-10 px-4 md:px-24 py-5'>
-        <Link href='/' className='flex items-center gap-2' prefetch={false}>
+        <Link href='/' className='flex items-center gap-2 ' prefetch={false}>
           <span className='font-bold text-lg'>EleganceHub</span>
         </Link>
         {userAccount && (
@@ -255,6 +255,7 @@ export default function Header({
               <DropdownMenuTrigger asChild>
                 {user?.image ? (
                   <Button
+                    aria-expanded = {false}
                     variant='ghost'
                     size='icon'
                     className='rounded-full border w-8 h-8 focus-visible:ring-0'>
@@ -278,7 +279,7 @@ export default function Header({
                   </Button>
                 )}
               </DropdownMenuTrigger>
-              <DropdownMenuContent align='end'>
+              <DropdownMenuContent align='center'  >
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <Link href='/profile'>
@@ -292,8 +293,8 @@ export default function Header({
                 </Link>
                 <DropdownMenuSeparator />
                 <form action={signOutAction}>
-                  <DropdownMenuItem className='py-0'>
-                    <Button variant='ghost' className='p-0'>
+                  <DropdownMenuItem className='py-0 w-full'>
+                    <Button variant='ghost' className='p-0 w-full justify-start'>
                       Logout
                     </Button>
                   </DropdownMenuItem>
