@@ -9,7 +9,7 @@ export default async function Page() {
   );
 
   return (
-    <div className='h-screen flex items-center justify-center'>
+    <div className='max-h-screen flex items-center justify-center bg-background overflow-scroll'>
       <CheckOutForm cartItems={user?.CartItem} />
     </div>
   );
