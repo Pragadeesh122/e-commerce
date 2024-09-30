@@ -20,6 +20,7 @@ export default function SizeButton({
 
   return (
     <button
+      id={size}
       onClick={handleSize}
       className={cn(
         "px-4 py-2 rounded-md border-2",
