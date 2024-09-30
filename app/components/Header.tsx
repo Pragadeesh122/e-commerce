@@ -237,7 +237,7 @@ export default function Header({
         )}
         <div className='flex gap-4 justify-center items-center'>
           <div className='flex gap-8 items-center justify-content'>
-            <div className='relative'>
+            <div id='cart' className='relative'>
               <Link href='/cart'>
                 <ShoppingCartIcon className='h-8 w-8' />
 
@@ -255,7 +255,7 @@ export default function Header({
               <DropdownMenuTrigger asChild>
                 {user?.image ? (
                   <Button
-                    aria-expanded = {false}
+                    aria-expanded={false}
                     variant='ghost'
                     size='icon'
                     className='rounded-full border w-8 h-8 focus-visible:ring-0'>
@@ -279,7 +279,7 @@ export default function Header({
                   </Button>
                 )}
               </DropdownMenuTrigger>
-              <DropdownMenuContent align='center'  >
+              <DropdownMenuContent align='center'>
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <Link href='/profile'>
@@ -294,7 +294,9 @@ export default function Header({
                 <DropdownMenuSeparator />
                 <form action={signOutAction}>
                   <DropdownMenuItem className='py-0 w-full'>
-                    <Button variant='ghost' className='p-0 w-full justify-start'>
+                    <Button
+                      variant='ghost'
+                      className='p-0 w-full justify-start'>
                       Logout
                     </Button>
                   </DropdownMenuItem>
