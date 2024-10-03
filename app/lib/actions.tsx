@@ -337,7 +337,8 @@ export async function addToWishlist(formData: FormData) {
       return {error: "User not found"};
     }
 
-    const wishlistItem = await addItemsToWishlist(user.id, imageId);
+    await addItemsToWishlist(user.id, imageId);
+    revalidatePath("/wishlist", "page");
   } catch (error: any) {
     console.error("Error adding to wishlist:", error);
     return {error: "Error adding to wishlist", details: error.message};
@@ -362,6 +363,7 @@ export async function removeFromWishlist(formData: FormData) {
       return {error: "Wishlist item not found"};
     }
     await removeWishlistItem(wishlistItem.id);
+    revalidatePath("/wishlist", "page");
   } catch (error: any) {
     console.error("Error removing from wishlist:", error);
     return {error: "Error removing from wishlist", details: error.message};
