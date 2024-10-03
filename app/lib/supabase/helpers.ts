@@ -452,3 +452,115 @@ export async function createUserOrderItem(orderItemData: {
     return null;
   }
 }
+
+export async function getUserProfileWithEmail(email: string) {
+  const {data, error} = await supabase
+    .from("User")
+    .select(`id,email,name`)
+    .eq("email", email);
+
+  if (error) {
+    console.error("Error fetching user:", error.message);
+    return null;
+  }
+  return data[0];
+}
+
+export async function addItemsToWishlist(userId: string, productId: string) {
+  const {data, error} = await supabase
+    .from("Wishlist")
+    .insert([{id: createId(), userId, productId}])
+    .select();
+
+  if (error) {
+    console.error("Error adding to wishlist:", error.message);
+    return null;
+  }
+  return data;
+}
+
+export async function getWishlist(userId: string, productId: string) {
+  const {data, error} = await supabase
+    .from("Wishlist")
+    .select("*")
+    .eq("userId", userId)
+    .eq("productId", productId);
+
+  if (error) {
+    console.error("Error fetching wishlist:", error.message);
+    return null;
+  }
+  return data[0];
+}
+
+export async function removeWishlistItem(id: string) {
+  const {error} = await supabase.from("Wishlist").delete().eq("id", id);
+
+  if (error) {
+    console.error("Error removing wishlist item:", error.message);
+    return null;
+  }
+}
+
+export async function getWishlistProducts(email: string) {
+  const {data, error} = await supabase
+    .from("User")
+    .select(
+      `
+      name,
+      email,
+      Wishlist (
+        id,
+        product:Product (
+          id,
+          displayImage,
+          images,
+          productName,
+          wear,
+          price,
+          description,
+          isNew,
+          isTrending,
+          isPopular,
+          isTopRated,
+          isOnSale
+        )
+      )
+    `
+    )
+    .eq("email", email)
+    .single();
+
+  if (error) {
+    console.error("Error fetching wishlist products:", error.message);
+    return null;
+  }
+
+  const wishlistProducts =
+    data.Wishlist?.map((item: any) => ({
+      ...item.product,
+    })) ?? [];
+
+  return wishlistProducts;
+}
+
+export async function getUserWishlistProductIds(email: string) {
+  const {data, error} = await supabase
+    .from("User")
+    .select(
+      `  
+        Wishlist (
+        productId
+      )
+    `
+    )
+    .eq("email", email)
+    .single();
+
+  if (error) {
+    console.error("Error fetching user wishlist:", error.message);
+    return null;
+  }
+
+  return data.Wishlist.map((item: {productId: string}) => item.productId);
+}

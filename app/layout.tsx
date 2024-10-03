@@ -1,5 +1,6 @@
 import type {Metadata} from "next";
 import {Inter, Open_Sans} from "next/font/google";
+import {SessionProvider} from "next-auth/react";
 import "./globals.css";
 
 const inter = Inter({subsets: ["latin"]});
@@ -18,7 +19,9 @@ export default async function RootLayout({
   return (
     <html lang='en'>
       <body className={`${openSans.className} bg-muted`}>
-        <main className='min-h-screen scroll-smooth '>{children}</main>
+        <main className='min-h-screen scroll-smooth '>
+          <SessionProvider>{children}</SessionProvider>
+        </main>
       </body>
     </html>
   );

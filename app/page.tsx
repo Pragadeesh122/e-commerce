@@ -5,7 +5,11 @@ import SectionHeader from "./components/SectionHeader";
 import Header from "./components/Header";
 import FeatureSection from "./components/FeatureSection";
 import Footer from "./components/Footer";
-import {getImages, getUserByEmail} from "./lib/supabase/helpers";
+import {
+  getImages,
+  getUserByEmail,
+  getUserWishlistProductIds,
+} from "./lib/supabase/helpers";
 
 export default async function Home() {
   const session = await auth();
@@ -14,6 +18,9 @@ export default async function Home() {
 
   const trending = images.filter((product) => product.isTrending);
   const otherSections = images.filter((product) => !product.isTrending);
+  const wishlistItemIds = await getUserWishlistProductIds(
+    session?.user?.email!
+  );
 
   const featured = otherSections.slice(0, 4);
   const recommended = otherSections.slice(4, 8);
@@ -46,6 +53,7 @@ export default async function Home() {
           </div>
         </section>
         <FeatureSection
+          wishlistItems={wishlistItemIds!}
           images={featured}
           heading='Featured Collections'
           subHeading='Explore Our Curated Collections'
@@ -53,12 +61,14 @@ export default async function Home() {
           showcasing the latest trends and styles.'
         />
         <FeatureSection
+          wishlistItems={wishlistItemIds!}
           images={trending}
           heading='Trending Now'
           subHeading='Stay Ahead with the Latest Trends'
           description=" Dive into our selection of trending styles that are making waves in the fashion world. From bold statement pieces to subtle elegance, find what's hot right now"
         />
         <FeatureSection
+          wishlistItems={wishlistItemIds!}
           images={recommended}
           heading='Personalized Recommendations'
           subHeading='Tailored Just for You'

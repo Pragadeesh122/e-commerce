@@ -1,7 +1,11 @@
 import FeatureSection from "@/app/components/FeatureSection";
 import Header from "@/app/components/Header";
 import {auth} from "@/app/lib/auth";
-import {getFormalWear, getUserByEmail} from "@/app/lib/supabase/helpers";
+import {
+  getFormalWear,
+  getUserByEmail,
+  getUserWishlistProductIds,
+} from "@/app/lib/supabase/helpers";
 
 export default async function Page({searchParams}: any) {
   const session = await auth();
@@ -15,6 +19,9 @@ export default async function Page({searchParams}: any) {
         .includes(searchParams["search"]?.toLowerCase());
     });
   }
+  const wishlistItemIds = await getUserWishlistProductIds(
+    session?.user?.email!
+  );
 
   return (
     <div className='flex flex-col'>
@@ -22,6 +29,7 @@ export default async function Page({searchParams}: any) {
       <main className='flex-1 px-14 bg-muted'>
         <section className='w-full py-10 pt-20'>
           <FeatureSection
+            wishlistItems={wishlistItemIds!}
             images={formalWears}
             heading='Elevate Your Formal Attire'
             subHeading='Discover Timeless Elegance'

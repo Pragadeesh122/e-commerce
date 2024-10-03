@@ -8,7 +8,6 @@ import {
   CarouselPrevious,
 } from "@/app/components/ui/carousel";
 import {auth} from "@/app/lib/auth";
-import { getCachedUserByEmail } from "@/app/lib/db-cache";
 import {getProductById, getUserByEmail} from "@/app/lib/supabase/helpers";
 import Image from "next/image";
 

@@ -4,6 +4,7 @@ import bycrptjs from "bcryptjs";
 import {auth, signIn, signOut} from "@/app/lib/auth";
 import {validateFormData} from "@/app/data/formDataValidation";
 import {
+  addItemsToWishlist,
   createCartItem,
   createProduct,
   createUserOrder,
@@ -12,8 +13,11 @@ import {
   getUserByEmail,
   getUserByEmailWithCartItemsAndProducts,
   getUserByVerificationToken,
+  getUserProfileWithEmail,
+  getWishlist,
   removeCartItem,
   removeCartItemByUserId,
+  removeWishlistItem,
   updateCartItemQuantity,
   updateCartItemQuantityAlreadyExists,
   updateCartItemSize,
@@ -319,6 +323,51 @@ export async function addToCart(formData: FormData) {
   }
 }
 
+export async function addToWishlist(formData: FormData) {
+  const imageId = formData.get("imageId") as string;
+  const email = formData.get("email") as string;
+  try {
+    const session = await auth();
+    if (!session) {
+      return {error: "You are not authorized to perform this action"};
+    }
+
+    const user = await getUserProfileWithEmail(email);
+    if (!user) {
+      return {error: "User not found"};
+    }
+
+    const wishlistItem = await addItemsToWishlist(user.id, imageId);
+  } catch (error: any) {
+    console.error("Error adding to wishlist:", error);
+    return {error: "Error adding to wishlist", details: error.message};
+  }
+}
+
+export async function removeFromWishlist(formData: FormData) {
+  const imageId = formData.get("imageId") as string;
+  const email = formData.get("email") as string;
+  try {
+    const session = await auth();
+    if (!session) {
+      return {error: "You are not authorized to perform this action"};
+    }
+
+    const user = await getUserProfileWithEmail(email);
+    if (!user) {
+      return {error: "User not found"};
+    }
+    const wishlistItem = await getWishlist(user.id, imageId);
+    if (!wishlistItem) {
+      return {error: "Wishlist item not found"};
+    }
+    await removeWishlistItem(wishlistItem.id);
+  } catch (error: any) {
+    console.error("Error removing from wishlist:", error);
+    return {error: "Error removing from wishlist", details: error.message};
+  }
+}
+
 export async function removeFromCart(formData: FormData) {
   const cartItemId = formData.get("cartId") as string;
   try {
@@ -378,9 +427,6 @@ export async function createOrder() {
 
     const newOrder = await createUserOrder(user.id, total);
 
-    console.log("New Order:", newOrder);
-
-    // Step 2: Create the OrderItems
     const orderItems = user.CartItem.map((cartItem) => ({
       id: createId() as string,
       orderId: newOrder?.id as string,
@@ -394,8 +440,6 @@ export async function createOrder() {
     orderItems.forEach(async (item) => {
       await createUserOrderItem(item);
     });
-
-    // Step 3: Remove the cart items
 
     await removeCartItemByUserId(user.id);
     revalidatePath("/orders");

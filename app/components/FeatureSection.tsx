@@ -2,8 +2,8 @@ import Image from "next/image";
 import SectionHeader from "./SectionHeader";
 import {Card, CardContent} from "./ui/card";
 import {Badge} from "./ui/badge";
-import {Button} from "./ui/button";
 import Link from "next/link";
+import WhislistButton from "./WhislistButton";
 
 type ImageType = {
   id: string;
@@ -20,16 +20,20 @@ type ImageType = {
   isOnSale?: boolean;
 }[];
 
+type WishlistItemType = string[];
+
 export default function FeatureSection({
   images,
   heading,
   subHeading,
   description,
+  wishlistItems = [],
 }: {
   images: ImageType;
   heading: string;
   subHeading: string;
   description: string;
+  wishlistItems: WishlistItemType;
 }) {
   const getBadgeLabel = (image: ImageType[number]) => {
     if (image.isNew) return "New";
@@ -50,7 +54,11 @@ export default function FeatureSection({
         <div className='grid gap-x-6 gap-y-12  items-center justify-center grid-cols-[repeat(auto-fit,minmax(150px,270px))]'>
           {images.map((image) => (
             <Link key={image?.displayImage} href={`/products/${image?.id}`}>
-              <Card className='overflow-hidden'>
+              <Card className='overflow-hidden relative'>
+                <WhislistButton
+                  imageId={image?.id}
+                  isWishlisted={wishlistItems.includes(image?.id)}
+                />
                 <div className='relative w-full h-72 '>
                   <Image
                     src={`${image?.displayImage}`}
