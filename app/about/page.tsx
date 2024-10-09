@@ -23,6 +23,7 @@ export default async function AboutPage() {
           <div>
             <Image
               src={storeImage}
+              placeholder='blur'
               alt='EleganceHub Storefront'
               width={600}
               height={400}
