@@ -208,7 +208,7 @@ export async function getProductById(id: string) {
 export async function getUser(email: string) {
   const {data, error} = await supabase
     .from("User")
-    .select("*")
+    .select("id, email, password, verified, name, image")
     .eq("email", email)
     .single();
 

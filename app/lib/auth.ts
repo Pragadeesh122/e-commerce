@@ -17,31 +17,37 @@ const authConfig = {
     }),
     credentials({
       async authorize(credentials, request) {
-        if (
-          (credentials?.email as string) === null ||
-          (credentials?.password as string) === null
-        ) {
+        if (!credentials?.email || !credentials?.password) {
           return null;
         }
+        
         try {
           const user = await getUser(credentials.email as string);
-          if (user) {
-            if (!user.verified) {
-              throw new Error("Please verify your email before logging in");
-            }
-            const isMatch = await bycrptjs.compare(
-              credentials.password as string,
-              user.password!
-            );
-
-            if (isMatch) {
-              return user as any;
-            } else {
-              throw new Error("Invalid Credentials");
-            }
+          if (!user) {
+            throw new Error("Invalid Credentials");
           }
+          
+          if (!user.verified) {
+            throw new Error("Please verify your email before logging in");
+          }
+          
+          const isMatch = await bycrptjs.compare(
+            credentials.password as string,
+            user.password!
+          );
+
+          if (!isMatch) {
+            throw new Error("Invalid Credentials");
+          }
+          
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            image: user.image
+          };
         } catch (error: any) {
-          return error.message;
+          throw new Error(error.message);
         }
       },
     }),
