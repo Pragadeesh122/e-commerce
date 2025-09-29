@@ -55,9 +55,8 @@ export default function Header({
     if (!debouncedSearchProduct.trim()) {
       return false;
     }
-    const normalizedProductName = product.productName
-      .toLowerCase()
-      .replace(/\s+/g, "");
+    const normalizedProductName = product.productName.toLowerCase();
+    console.log(normalizedProductName);
     return normalizedProductName.includes(debouncedSearchProduct);
   });
   const router = useRouter();
